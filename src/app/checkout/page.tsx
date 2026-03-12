@@ -13,7 +13,8 @@ type Step = "shipping" | "payment" | "success";
 
 export default function CheckoutPage() {
     const [step, setStep] = useState<Step>("shipping");
-    const { items, clearCart } = useCartStore();
+    const items = useCartStore((state) => state.items);
+    const clearCart = useCartStore((state) => state.clearCart);
     const total = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
     const [shippingData, setShippingData] = useState({

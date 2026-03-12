@@ -2,6 +2,11 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
+import { X, ShoppingCart, ArrowRight, Trash2, Minus, Plus } from "lucide-react";
+import { useCartStore } from "@/store/cartStore";
+import Image from "next/image";
+import Link from "next/link";
+import { PriceDisplay } from "@/components/common/PriceDisplay";
 
 export function CartDrawer() {
     const { items, isCartOpen, setCartOpen, removeItem, updateQuantity } = useCartStore();

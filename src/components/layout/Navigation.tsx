@@ -1,11 +1,15 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { useSession, signIn, signOut } from "next-auth/react";
+import { Hexagon, ShoppingCart, Menu, X, LogOut, LayoutDashboard, User } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
+import { useCartStore } from "@/store/cartStore";
+import { useSettingsStore } from "@/store/settingsStore";
 
 export function Navigation() {
     const [isOpen, setIsOpen] = useState(false);
-    const { items: cartItems, setCartOpen } = useCartStore();
+    const cartItems = useCartStore((state) => state.items);
+    const setCartOpen = useCartStore((state) => state.setCartOpen);
     const { data: session, status: sessionStatus } = useSession();
     const user = session?.user as any;
     const storeName = useSettingsStore(state => state.storeName);
@@ -14,94 +18,101 @@ export function Navigation() {
 
     return (
         <>
-            <header className="fixed top-0 left-0 w-full z-50 glass border-b border-surface-200 shadow-sm">
-                <div className="container mx-auto px-4 h-20 flex items-center justify-between">
+            <header className="fixed top-0 left-0 w-full z-50 glass border-b border-surface-200 shadow-sm px-4">
+                <div className="container mx-auto h-24 flex items-center justify-between">
 
-                    <Link href="/" className="flex items-center gap-2 group">
+                    <Link href="/" className="flex items-center gap-3 group">
                         <motion.div
                             whileHover={{ rotate: 180, scale: 1.1 }}
-                            transition={{ type: "spring", stiffness: 200, damping: 10 }}
-                            className="text-brand-600"
+                            transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                            className="w-12 h-12 bg-surface-950 rounded-2xl flex items-center justify-center text-white shadow-lg group-hover:bg-brand-600 transition-colors duration-500"
                         >
-                            <Hexagon size={32} />
+                            <Hexagon size={24} />
                         </motion.div>
-                        <span className="font-outfit font-black text-2xl tracking-tighter text-surface-900 group-hover:text-brand-600 transition-all duration-300 uppercase">
+                        <span className="font-outfit font-black text-3xl tracking-tighter text-surface-950 group-hover:text-brand-600 transition-all duration-300 uppercase leading-none">
                             {storeName}
                         </span>
                     </Link>
 
                     {/* Desktop Nav */}
-                    <nav className="hidden md:flex items-center gap-8">
-                        <Link href="/products" className="text-surface-600 hover:text-brand-600 font-bold transition-colors">
-                            Parts Catalog
-                        </Link>
-                        <Link href="/categories" className="text-surface-600 hover:text-brand-600 font-bold transition-colors">
-                            Categories
-                        </Link>
-                        <Link href="/about" className="text-surface-600 hover:text-brand-600 font-bold transition-colors">
-                            About Us
-                        </Link>
+                    <nav className="hidden lg:flex items-center gap-12">
+                        {['Catalog', 'Categories', 'Performance', 'Logistics'].map((item) => (
+                            <Link 
+                                key={item} 
+                                href={`/${item.toLowerCase()}`} 
+                                className="text-[10px] font-black uppercase tracking-[0.3em] text-surface-400 hover:text-brand-600 transition-all relative group/link"
+                            >
+                                {item}
+                                <span className="absolute -bottom-2 left-0 w-0 h-0.5 bg-brand-600 group-hover/link:w-full transition-all duration-300" />
+                            </Link>
+                        ))}
                     </nav>
 
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-6">
                         {/* Auth Status */}
-                        <div className="hidden md:flex items-center gap-4">
+                        <div className="hidden md:flex items-center gap-6">
                             {sessionStatus === "authenticated" ? (
-                                <div className="flex items-center gap-4">
+                                <div className="flex items-center gap-6">
                                     <Link
-                                        href={user?.role === "admin" ? "/admin" : "/profile"}
-                                        className="flex items-center gap-2 px-4 py-2 bg-white hover:bg-surface-50 rounded-full transition-all border border-surface-200 group shadow-sm hover:shadow-md"
+                                        href={user?.role === "admin" ? "/admin/dashboard" : "/profile"}
+                                        className="flex items-center gap-3 px-2 py-2 pr-6 bg-white hover:bg-surface-50 rounded-full transition-all border border-surface-200 group shadow-sm hover:shadow-xl active:scale-95"
                                     >
-                                        <div className="w-8 h-8 bg-brand-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                                        <div className="w-10 h-10 bg-surface-950 rounded-full flex items-center justify-center text-white font-black text-sm shadow-lg group-hover:bg-brand-600 transition-colors">
                                             {user?.name?.[0]?.toUpperCase()}
                                         </div>
-                                        <span className="text-sm font-bold text-surface-950 group-hover:text-brand-600 transition-colors uppercase tracking-tight">{user?.name}</span>
-                                        {user?.role === "ADMIN" && <LayoutDashboard size={14} className="text-brand-600" />}
+                                        <div className="flex flex-col">
+                                            <span className="text-[10px] font-black text-surface-950 uppercase tracking-tight group-hover:text-brand-600 transition-colors">{user?.name}</span>
+                                            <span className="text-[8px] font-black text-surface-400 uppercase tracking-widest leading-none">Authorized Client</span>
+                                        </div>
                                     </Link>
                                     <button
                                         onClick={() => signOut()}
-                                        className="p-2 text-surface-400 hover:text-red-600 transition-colors"
+                                        className="w-10 h-10 flex items-center justify-center text-surface-300 hover:text-red-600 transition-all hover:bg-red-50 rounded-xl"
                                         title="Log Out"
                                     >
                                         <LogOut size={20} />
                                     </button>
                                 </div>
                             ) : (
-                                <div className="flex items-center gap-3">
-                                    <Link
-                                        href="/auth/register"
-                                        className="px-6 py-2.5 bg-white border border-surface-200 hover:border-brand-600 text-surface-900 font-bold rounded-xl transition-all text-sm uppercase tracking-widest"
-                                    >
-                                        Register
-                                    </Link>
+                                <div className="flex items-center gap-4">
                                     <Link
                                         href="/auth/login"
-                                        className="px-6 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-brand-600/20 active:scale-95 text-sm uppercase tracking-widest"
+                                        className="px-8 py-3.5 bg-surface-950 hover:bg-black text-white font-black rounded-xl transition-all shadow-xl shadow-black/10 active:scale-95 text-[10px] uppercase tracking-[0.2em]"
                                     >
-                                        Login
+                                        Authenticate
                                     </Link>
                                 </div>
                             )}
                         </div>
 
+                        <div className="h-8 w-px bg-surface-200 hidden md:block" />
+
                         <motion.button
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={() => setCartOpen(true)}
-                            className="relative p-2 text-surface-900 hover:text-brand-600 transition-colors"
+                            className="relative flex items-center gap-3 bg-white px-5 py-3 rounded-2xl border border-surface-200 group hover:border-brand-600 transition-all shadow-sm"
                         >
-                            <ShoppingCart size={24} />
+                            <ShoppingCart size={22} className="text-surface-950 group-hover:text-brand-600 transition-colors" />
+                            <div className="hidden sm:flex flex-col items-start leading-none gap-1">
+                                <span className="text-[8px] font-black uppercase tracking-widest text-surface-400">Cart</span>
+                                <span className="text-[10px] font-black text-surface-950 group-hover:text-brand-600">{totalItems} UNITS</span>
+                            </div>
                             {totalItems > 0 && (
                                 <motion.div
                                     initial={{ scale: 0 }}
                                     animate={{ scale: 1 }}
-                                    className="absolute -top-1 -right-1 w-5 h-5 bg-brand-600 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-md"
+                                    className="absolute -top-2 -right-2 w-6 h-6 bg-brand-600 border-2 border-white rounded-full flex items-center justify-center text-[10px] font-black text-white shadow-xl"
                                 >
                                     {totalItems}
                                 </motion.div>
                             )}
                         </motion.button>
-                        <button className="md:hidden text-surface-900" onClick={() => setIsOpen(!isOpen)}>
+                        
+                        <button 
+                            className="md:hidden w-12 h-12 flex items-center justify-center bg-surface-50 rounded-xl text-surface-950" 
+                            onClick={() => setIsOpen(!isOpen)}
+                        >
                             {isOpen ? <X size={24} /> : <Menu size={24} />}
                         </button>
                     </div>
@@ -109,24 +120,37 @@ export function Navigation() {
             </header>
 
             {/* Mobile Nav Overlay */}
-            <motion.div
-                initial={false}
-                animate={{ opacity: isOpen ? 1 : 0, y: isOpen ? 0 : "-100%" }}
-                transition={{ duration: 0.3, ease: "easeInOut" }}
-                className={`fixed inset-0 z-40 bg-surface-50/98 backdrop-blur-xl pt-24 px-4 md:hidden ${isOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}
-            >
-                <nav className="flex flex-col gap-6 text-2xl font-outfit font-bold">
-                    <Link href="/products" onClick={() => setIsOpen(false)} className="text-surface-900 hover:text-brand-600 hover:translate-x-4 transition-all duration-300">
-                        Parts Catalog
-                    </Link>
-                    <Link href="/categories" onClick={() => setIsOpen(false)} className="text-surface-900 hover:text-brand-600 hover:translate-x-4 transition-all duration-300">
-                        Categories
-                    </Link>
-                    <Link href="/about" onClick={() => setIsOpen(false)} className="text-surface-900 hover:text-brand-600 hover:translate-x-4 transition-all duration-300">
-                        About Us
-                    </Link>
-                </nav>
-            </motion.div>
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, scale: 1.1 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 1.1 }}
+                        className="fixed inset-0 z-40 bg-white pt-32 px-8 md:hidden"
+                    >
+                        <nav className="flex flex-col gap-10">
+                            {['Catalog', 'Categories', 'Performance', 'Logistics', 'Profile'].map((item) => (
+                                <Link 
+                                    key={item} 
+                                    href={`/${item.toLowerCase()}`} 
+                                    onClick={() => setIsOpen(false)} 
+                                    className="text-5xl font-outfit font-black text-surface-950 uppercase tracking-tighter hover:text-brand-600 transition-all"
+                                >
+                                    {item}
+                                </Link>
+                            ))}
+                            {sessionStatus === "authenticated" && (
+                                <button 
+                                    onClick={() => signOut()}
+                                    className="text-left text-red-600 text-3xl font-black uppercase tracking-widest mt-12 bg-red-50 p-6 rounded-[2rem]"
+                                >
+                                    DISCONNECT
+                                </button>
+                            )}
+                        </nav>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </>
     );
 }
