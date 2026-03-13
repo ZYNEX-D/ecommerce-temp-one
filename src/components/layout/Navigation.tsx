@@ -1,10 +1,14 @@
 "use client";
 
-import { Hexagon, ShoppingCart, Menu, X, LogOut, LayoutDashboard, User } from "lucide-react";
+import { Hexagon, ShoppingCart, Menu, X, LogOut, LayoutDashboard, User as UserIcon } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { useCartStore } from "@/store/cartStore";
 import { useSettingsStore } from "@/store/settingsStore";
+import { motion, AnimatePresence } from "framer-motion";
+import { useSession, signOut } from "next-auth/react";
+
+const m = motion as any;
 
 export function Navigation() {
     const [isOpen, setIsOpen] = useState(false);
@@ -22,13 +26,13 @@ export function Navigation() {
                 <div className="container mx-auto h-24 flex items-center justify-between">
 
                     <Link href="/" className="flex items-center gap-3 group">
-                        <motion.div
-                            whileHover={{ rotate: 180, scale: 1.1 }}
-                            transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                            className="w-12 h-12 bg-surface-950 rounded-2xl flex items-center justify-center text-white shadow-lg group-hover:bg-brand-600 transition-colors duration-500"
-                        >
-                            <Hexagon size={24} />
-                        </motion.div>
+                    <m.div
+                        whileHover={{ rotate: 180, scale: 1.1 }}
+                        transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                        className="w-12 h-12 bg-surface-950 rounded-2xl flex items-center justify-center text-white shadow-lg group-hover:bg-brand-600 transition-colors duration-500"
+                    >
+                        <Hexagon size={24} />
+                    </m.div>
                         <span className="font-outfit font-black text-3xl tracking-tighter text-surface-950 group-hover:text-brand-600 transition-all duration-300 uppercase leading-none">
                             {storeName}
                         </span>
@@ -87,7 +91,7 @@ export function Navigation() {
 
                         <div className="h-8 w-px bg-surface-200 hidden md:block" />
 
-                        <motion.button
+                        <m.button
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={() => setCartOpen(true)}
@@ -99,15 +103,15 @@ export function Navigation() {
                                 <span className="text-[10px] font-black text-surface-950 group-hover:text-brand-600">{totalItems} UNITS</span>
                             </div>
                             {totalItems > 0 && (
-                                <motion.div
+                                <m.div
                                     initial={{ scale: 0 }}
                                     animate={{ scale: 1 }}
                                     className="absolute -top-2 -right-2 w-6 h-6 bg-brand-600 border-2 border-white rounded-full flex items-center justify-center text-[10px] font-black text-white shadow-xl"
                                 >
                                     {totalItems}
-                                </motion.div>
+                                </m.div>
                             )}
-                        </motion.button>
+                        </m.button>
                         
                         <button 
                             className="md:hidden w-12 h-12 flex items-center justify-center bg-surface-50 rounded-xl text-surface-950" 
@@ -122,7 +126,7 @@ export function Navigation() {
             {/* Mobile Nav Overlay */}
             <AnimatePresence>
                 {isOpen && (
-                    <motion.div
+                    <m.div
                         initial={{ opacity: 0, scale: 1.1 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 1.1 }}
@@ -148,7 +152,7 @@ export function Navigation() {
                                 </button>
                             )}
                         </nav>
-                    </motion.div>
+                    </m.div>
                 )}
             </AnimatePresence>
         </>

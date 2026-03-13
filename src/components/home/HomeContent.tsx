@@ -6,6 +6,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { PriceDisplay } from "@/components/common/PriceDisplay";
 
+const m = motion as any;
+
 const products = [
     {
         id: "1",
@@ -35,7 +37,7 @@ const products = [
 
 export function Hero() {
     return (
-        <div className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-surface-50">
+        <div className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-surface-50 font-outfit">
             {/* Clean Background Elements */}
             <div className="absolute inset-0 z-0">
                 <div className="absolute top-1/2 right-0 -translate-y-1/2 w-[800px] h-[800px] bg-brand-50 rounded-full blur-[120px] opacity-40" />
@@ -43,7 +45,7 @@ export function Hero() {
             </div>
 
             <div className="container mx-auto px-4 relative z-10 flex flex-col items-center text-center">
-                <motion.div
+                <m.div
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, ease: "easeOut" }}
@@ -51,30 +53,30 @@ export function Hero() {
                 >
                     <Target size={14} className="text-brand-600" />
                     <span>PREMIUM AUTO SPARES</span>
-                </motion.div>
+                </m.div>
 
-                <motion.h1
+                <m.h1
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, delay: 0.2 }}
-                    className="text-6xl md:text-9xl font-outfit font-black tracking-tighter mb-6 leading-[0.85] text-surface-950 uppercase"
+                    className="text-6xl md:text-9xl font-black tracking-tighter mb-6 leading-[0.85] text-surface-950 uppercase"
                 >
                     POWER YOUR<br />
                     <span className="text-brand-600 neon-text">
                         PERFORMANCE
                     </span>
-                </motion.h1>
+                </m.h1>
 
-                <motion.p
+                <m.p
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.8, delay: 0.4 }}
-                    className="text-xl md:text-2xl text-surface-500 max-w-3xl mb-12 font-medium leading-relaxed"
+                    className="text-xl md:text-2xl text-surface-500 max-w-3xl mb-12 font-medium leading-relaxed italic"
                 >
                     Engineered for durability. Designed for speed. Discover our curated catalog of precision automotive components.
-                </motion.p>
+                </m.p>
 
-                <motion.div
+                <m.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, delay: 0.6 }}
@@ -86,14 +88,14 @@ export function Hero() {
                     <Link href="/categories" className="px-8 py-4 bg-white border border-surface-200 hover:border-brand-600 text-surface-950 font-black rounded-2xl transition-all duration-300 active:scale-95 flex items-center justify-center gap-2 shadow-sm uppercase tracking-widest text-sm min-w-[240px]">
                         VIEW CATEGORIES
                     </Link>
-                </motion.div>
+                </m.div>
 
                 {/* Stats / Features */}
-                <motion.div
+                <m.div
                     initial={{ opacity: 0, y: 40 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, delay: 0.8 }}
-                    className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-32 w-full max-w-5xl"
+                    className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-32 w-full max-w-5xl text-left"
                 >
                     {[
                         { icon: Zap, title: "Fast Shipping", desc: "Same-day dispatch nationwide" },
@@ -104,11 +106,11 @@ export function Hero() {
                             <div className="w-14 h-14 rounded-2xl bg-brand-50 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-brand-600 group-hover:text-white transition-all duration-300">
                                 <feature.icon size={28} className="text-brand-600 group-hover:text-white" />
                             </div>
-                            <h3 className="text-2xl font-black font-outfit text-surface-950 mb-3 uppercase tracking-tight">{feature.title}</h3>
-                            <p className="text-surface-500 font-medium leading-relaxed">{feature.desc}</p>
+                            <h3 className="text-2xl font-black text-surface-950 mb-3 uppercase tracking-tight">{feature.title}</h3>
+                            <p className="text-surface-500 font-medium leading-relaxed italic">{feature.desc}</p>
                         </div>
                     ))}
-                </motion.div>
+                </m.div>
             </div>
         </div>
     );
@@ -116,11 +118,11 @@ export function Hero() {
 
 export function FeaturedProducts() {
     return (
-        <section className="py-32 relative z-10 bg-white">
+        <section className="py-32 relative z-10 bg-white font-outfit">
             <div className="container mx-auto px-4">
                 <div className="flex flex-col md:flex-row justify-between items-center md:items-end mb-16 gap-6">
                     <div className="text-center md:text-left">
-                        <h2 className="text-5xl md:text-7xl font-outfit font-black tracking-tighter text-surface-950 mb-4 uppercase">
+                        <h2 className="text-5xl md:text-7xl font-black tracking-tighter text-surface-950 mb-4 uppercase">
                             NEW <span className="text-brand-600">ARRIVALS</span>
                         </h2>
                         <p className="text-surface-500 font-medium text-xl max-w-xl">Precision-engineered additions to our high-performance catalog.</p>
@@ -132,7 +134,7 @@ export function FeaturedProducts() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                     {products.map((product, idx) => (
-                        <motion.div
+                        <m.div
                             key={product.id}
                             initial={{ opacity: 0, y: 30 }}
                             whileInView={{ opacity: 1, y: 0 }}
@@ -153,21 +155,21 @@ export function FeaturedProducts() {
                             </div>
 
                             <div className="p-10 relative">
-                                <h3 className="text-2xl font-black font-outfit text-surface-950 mb-4 leading-tight group-hover:text-brand-600 transition-colors uppercase tracking-tight">
+                                <h3 className="text-2xl font-black text-surface-950 mb-4 leading-tight group-hover:text-brand-600 transition-colors uppercase tracking-tight">
                                     {product.name}
                                 </h3>
-                                <p className="text-surface-500 text-base mb-10 line-clamp-2 font-medium leading-relaxed">
+                                <p className="text-surface-500 text-base mb-10 line-clamp-2 font-medium leading-relaxed italic">
                                     {product.description}
                                 </p>
 
                                 <div className="flex items-center justify-between border-t border-surface-100 pt-8">
-                                    <PriceDisplay amount={product.price} className="font-outfit text-4xl font-black text-surface-950" />
+                                    <PriceDisplay amount={product.price} className="text-4xl font-black text-surface-950" />
                                     <Link href={`/products/${product.id}`} className="w-14 h-14 bg-brand-600 hover:bg-brand-700 text-white rounded-2xl flex items-center justify-center transition-all duration-300 shadow-lg shadow-brand-600/20 active:scale-90">
                                         <ShoppingCart size={24} />
                                     </Link>
                                 </div>
                             </div>
-                        </motion.div>
+                        </m.div>
                     ))}
                 </div>
             </div>

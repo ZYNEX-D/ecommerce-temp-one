@@ -14,9 +14,32 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "Apex Auto Parts | Premium Spares",
-  description: "High-performance motor spare parts, OEM replacements, and racing components.",
-  keywords: ["auto parts", "motor spares", "car parts", "racing parts", "OEM", "nextjs"],
+  title: "Apex Auto Parts | Premium Automotive Components",
+  description: "High-performance motor spare parts, OEM replacements, and racing components. Precision engineered for maximum durability.",
+  keywords: ["auto parts", "motor spares", "car parts", "racing parts", "OEM", "performance auto", "apex parts"],
+  authors: [{ name: "Apex Team" }],
+  openGraph: {
+    title: "Apex Auto Parts | Premium Automotive Components",
+    description: "High-performance motor spare parts and racing components.",
+    url: "https://apex-auto-parts.com",
+    siteName: "Apex Auto Parts",
+    images: [
+      {
+        url: "/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Apex Auto Parts Hero Image",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Apex Auto Parts | Premium Automotive Components",
+    description: "High-performance motor spare parts and racing components.",
+    images: ["/og-image.jpg"],
+  },
 };
 
   export default function RootLayout({

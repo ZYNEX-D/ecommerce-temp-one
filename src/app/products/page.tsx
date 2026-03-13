@@ -2,10 +2,19 @@
 
 import { motion } from "framer-motion";
 import { toast } from "sonner";
+import { ShoppingCart, Loader2, Target, Box, Search } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
+import { useCartStore } from "@/store/cartStore";
+import Image from "next/image";
+import Link from "next/link";
+import { PriceDisplay } from "@/components/common/PriceDisplay";
+
+const m = motion as any;
 
 export default function ProductsPage() {
     const [products, setProducts] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [searchQuery, setSearchQuery] = useState("");
     const addItem = useCartStore((state) => state.addItem);
 
     useEffect(() => {
@@ -13,7 +22,9 @@ export default function ProductsPage() {
             try {
                 const res = await fetch('/api/products');
                 const data = await res.json();
-                setProducts(data);
+                if (Array.isArray(data)) {
+                    setProducts(data);
+                }
             } catch (error) {
                 console.error("Failed to fetch products:", error);
                 toast.error("Failed to load parts catalog.");
@@ -24,6 +35,16 @@ export default function ProductsPage() {
 
         fetchProducts();
     }, []);
+
+    const filteredProducts = useMemo(() => {
+        if (!searchQuery) return products;
+        const query = searchQuery.toLowerCase();
+        return products.filter(p => 
+            p.name.toLowerCase().includes(query) || 
+            p.description.toLowerCase().includes(query) ||
+            p.category?.name?.toLowerCase().includes(query)
+        );
+    }, [products, searchQuery]);
 
     if (loading) {
         return (
@@ -38,42 +59,62 @@ export default function ProductsPage() {
 
     return (
         <div className="container mx-auto px-4 py-24 min-h-screen bg-surface-50">
-            <div className="mb-20">
-                <motion.div
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    className="flex items-center gap-2 text-brand-600 font-black uppercase tracking-[0.3em] text-xs mb-4"
-                >
-                    <Target size={14} />
-                    <span>Apex Performance Parts</span>
-                </motion.div>
-                <motion.h1
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8 }}
-                    className="text-6xl md:text-8xl font-outfit font-black tracking-tighter mb-6 text-surface-950 uppercase leading-[0.85]"
-                >
-                    AUTO <span className="text-brand-600">CATALOG</span>
-                </motion.h1>
-                <motion.p
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 0.2 }}
-                    className="text-surface-500 max-w-3xl text-xl font-medium leading-relaxed"
-                >
-                    Browse our full range of precision-calibrated components, from high-tensile brakes to high-performance filters.
-                </motion.p>
+            <div className="mb-20 flex flex-col lg:flex-row lg:items-end justify-between gap-12">
+                <div className="max-w-3xl">
+                    <m.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        className="flex items-center gap-2 text-brand-600 font-black uppercase tracking-[0.3em] text-xs mb-4"
+                    >
+                        <Target size={14} />
+                        <span>Apex Performance Parts</span>
+                    </m.div>
+                    <m.h1
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8 }}
+                        className="text-6xl md:text-8xl font-outfit font-black tracking-tighter mb-6 text-surface-950 uppercase leading-[0.85]"
+                    >
+                        AUTO <span className="text-brand-600">CATALOG</span>
+                    </m.h1>
+                    <m.p
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8, delay: 0.2 }}
+                        className="text-surface-500 max-w-xl text-xl font-medium leading-relaxed"
+                    >
+                        Browse our full range of precision-calibrated components, from high-tensile brakes to high-performance filters.
+                    </m.p>
+                </div>
+
+                <div className="w-full lg:w-96">
+                    <div className="relative group">
+                        <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-surface-300 group-focus-within:text-brand-600 transition-colors" size={20} />
+                        <input 
+                            type="text" 
+                            placeholder="Search part ID or name..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-full bg-white border border-surface-200 rounded-[2rem] pl-16 pr-8 py-5 focus:outline-none focus:border-brand-600 focus:ring-4 focus:ring-brand-600/5 transition-all font-bold text-surface-950 shadow-sm"
+                        />
+                    </div>
+                </div>
             </div>
 
-            {products.length === 0 ? (
-                <div className="text-center py-32 rounded-[3rem] border-2 border-dashed border-surface-200 bg-white/50">
+            {filteredProducts.length === 0 ? (
+                <m.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="text-center py-32 rounded-[3rem] border-2 border-dashed border-surface-200 bg-white/50"
+                >
                     <Box className="w-20 h-20 text-surface-200 mx-auto mb-6" />
-                    <p className="text-surface-400 font-black text-2xl uppercase tracking-widest">Inventory Currently Empty</p>
-                </div>
+                    <p className="text-surface-400 font-black text-2xl uppercase tracking-widest">No matching components found</p>
+                    <button onClick={() => setSearchQuery("")} className="mt-6 text-brand-600 font-black uppercase tracking-widest text-sm hover:underline">Clear Search</button>
+                </m.div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-                    {products.map((product, idx) => (
-                        <motion.div
+                    {filteredProducts.map((product, idx) => (
+                        <m.div
                             key={product.id}
                             initial={{ opacity: 0, y: 30 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -119,7 +160,7 @@ export default function ProductsPage() {
                                     </button>
                                 </div>
                             </div>
-                        </motion.div>
+                        </m.div>
                     ))}
                 </div>
             )}

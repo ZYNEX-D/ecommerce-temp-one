@@ -4,6 +4,9 @@ import { motion } from "framer-motion";
 import { Mail, Lock, ArrowRight, UserPlus, LogIn, AlertCircle } from "lucide-react";
 import { signIn } from "next-auth/react";
 import { toast } from "sonner";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function CustomerLogin() {
     const [email, setEmail] = useState("");

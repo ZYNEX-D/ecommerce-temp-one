@@ -5,6 +5,8 @@ import { Plus, Edit2, Trash2, Search, X, Save, Loader2, Globe, Box, Tag, DollarS
 import Image from "next/image";
 import { useState, useEffect } from "react";
 
+const m = motion as any;
+
 export default function AdminProducts() {
     const [products, setProducts] = useState<any[]>([]);
     const [categories, setCategories] = useState<any[]>([]);
@@ -33,8 +35,8 @@ export default function AdminProducts() {
                 fetch('/api/categories')
             ]);
             const [prodData, catData] = await Promise.all([prodRes.json(), catRes.json()]);
-            setProducts(prodData);
-            setCategories(catData);
+            if (Array.isArray(prodData)) setProducts(prodData);
+            if (Array.isArray(catData)) setCategories(catData);
         } catch (error) {
             console.error("Failed to fetch data:", error);
         } finally {
@@ -53,10 +55,10 @@ export default function AdminProducts() {
                 name: product.name,
                 slug: product.slug,
                 description: product.description,
-                price: product.price,
+                price: parseFloat(product.price),
                 image: product.image,
                 stock: product.stock,
-                sku: product.sku,
+                sku: product.sku || "",
                 categoryId: product.categoryId,
                 metaTitle: product.metaTitle || "",
                 metaDescription: product.metaDescription || ""
@@ -113,7 +115,7 @@ export default function AdminProducts() {
 
     const filteredProducts = products.filter(p =>
         p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.category?.name.toLowerCase().includes(searchTerm.toLowerCase())
+        p.category?.name?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return (
@@ -177,7 +179,7 @@ export default function AdminProducts() {
                             </thead>
                             <tbody className="divide-y divide-surface-100">
                                 {filteredProducts.map((product, i) => (
-                                    <motion.tr
+                                    <m.tr
                                         key={product.id}
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
@@ -230,7 +232,7 @@ export default function AdminProducts() {
                                                 </button>
                                             </div>
                                         </td>
-                                    </motion.tr>
+                                    </m.tr>
                                 ))}
                             </tbody>
                         </table>
@@ -242,14 +244,14 @@ export default function AdminProducts() {
             <AnimatePresence>
                 {isModalOpen && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                        <motion.div
+                        <m.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             onClick={() => setIsModalOpen(false)}
                             className="absolute inset-0 bg-surface-950/40 backdrop-blur-md"
                         />
-                        <motion.div
+                        <m.div
                             initial={{ opacity: 0, scale: 0.9, y: 20 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -346,7 +348,7 @@ export default function AdminProducts() {
                                                 <input
                                                     value={formData.metaTitle}
                                                     onChange={e => setFormData({ ...formData, metaTitle: e.target.value })}
-                                                    className="w-full bg-surface-50 border border-surface-200 rounded-2xl py-3 pl-12 pr-6 font-bold text-surface-900 focus:border-brand-500 outline-none"
+                                                    className="w-full bg-surface-50 border border-surface-200 rounded-2xl py-3 pl-12 pr-6 font-bold text-surface-950 focus:border-brand-500 outline-none"
                                                     placeholder="SEO optimized title..."
                                                 />
                                             </div>
@@ -358,7 +360,7 @@ export default function AdminProducts() {
                                                 rows={2}
                                                 value={formData.metaDescription}
                                                 onChange={e => setFormData({ ...formData, metaDescription: e.target.value })}
-                                                className="w-full bg-surface-50 border border-surface-200 rounded-2xl py-3 px-4 font-bold text-surface-900 focus:border-brand-500 outline-none resize-none"
+                                                className="w-full bg-surface-50 border border-surface-200 rounded-2xl py-3 px-4 font-bold text-surface-950 focus:border-brand-500 outline-none resize-none"
                                                 placeholder="Brief description for search engines..."
                                             />
                                         </div>
@@ -370,7 +372,7 @@ export default function AdminProducts() {
                                                 rows={4}
                                                 value={formData.description}
                                                 onChange={e => setFormData({ ...formData, description: e.target.value })}
-                                                className="w-full bg-surface-50 border border-surface-200 rounded-2xl py-3 px-4 font-bold text-surface-900 focus:border-brand-500 outline-none resize-none"
+                                                className="w-full bg-surface-50 border border-surface-200 rounded-2xl py-3 px-4 font-bold text-surface-950 focus:border-brand-500 outline-none resize-none"
                                                 placeholder="Technical details and fitment info..."
                                             />
                                         </div>
@@ -394,7 +396,7 @@ export default function AdminProducts() {
                                     </button>
                                 </div>
                             </form>
-                        </motion.div>
+                        </m.div>
                     </div>
                 )}
             </AnimatePresence>

@@ -8,8 +8,12 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { PriceDisplay } from "@/components/common/PriceDisplay";
 import Link from "next/link";
+
+const m = motion as any;
+
 export default function ProfilePage() {
     const { data: session, status } = useSession();
+    const user = session?.user as any;
     const [orders, setOrders] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
@@ -25,8 +29,12 @@ export default function ProfilePage() {
             if (!user?.id) return;
             try {
                 const res = await fetch(`/api/orders?userId=${user.id}`);
-                const data = await res.json();
-                setOrders(data);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (Array.isArray(data)) {
+                        setOrders(data);
+                    }
+                }
             } catch (error) {
                 console.error("Failed to fetch user orders:", error);
             } finally {
@@ -66,7 +74,7 @@ export default function ProfilePage() {
 
                         {/* Sidebar / Info */}
                         <aside className="lg:col-span-4 space-y-12">
-                            <motion.div
+                            <m.div
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 className="bg-white rounded-[3rem] p-10 border border-surface-200 shadow-xl relative overflow-hidden"
@@ -109,7 +117,7 @@ export default function ProfilePage() {
                                 >
                                     <LogOut size={16} className="group-hover:translate-x-1 transition-transform" /> TERMINATE SESSION
                                 </button>
-                            </motion.div>
+                            </m.div>
 
                             <div className="bg-surface-950 rounded-[3rem] p-10 text-white relative overflow-hidden group shadow-2xl">
                                 <div className="absolute -top-10 -right-10 p-12 opacity-5 transform rotate-12 group-hover:scale-125 transition-transform duration-1000">
@@ -143,7 +151,7 @@ export default function ProfilePage() {
                             </div>
 
                             {orders.length === 0 ? (
-                                <motion.div
+                                <m.div
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     className="bg-white rounded-[3rem] p-24 border border-surface-200 shadow-sm text-center flex flex-col items-center group relative overflow-hidden"
@@ -152,16 +160,16 @@ export default function ProfilePage() {
                                     <div className="w-32 h-32 bg-surface-50 rounded-[2.5rem] flex items-center justify-center text-surface-200 mb-10 border border-surface-100 shadow-inner group-hover:scale-110 transition-transform duration-700">
                                         <Package size={56} />
                                     </div>
-                                    <h3 className="text-3xl font-black text-surface-950 uppercase mb-4 tracking-tighter font-outfit">NO TRANSACTIONS FOUND</h3>
+                                    <h3 className="text-3xl font-black text-surface-950 uppercase mb-4 tracking-tighter font-outfit">No Transactions Found</h3>
                                     <p className="text-surface-500 font-medium mb-12 max-w-sm text-lg leading-relaxed italic">Your logistical dashboard is currently vacant. Initiate your first performance component acquisition.</p>
                                     <Link href="/products" className="apex-button px-10">
                                         BROWSE INVENTORY
                                     </Link>
-                                </motion.div>
+                                </m.div>
                             ) : (
                                 <div className="space-y-8">
                                     {orders.map((order, idx) => (
-                                        <motion.div
+                                        <m.div
                                             key={order.id}
                                             initial={{ opacity: 0, y: 30 }}
                                             animate={{ opacity: 1, y: 0 }}
@@ -198,14 +206,14 @@ export default function ProfilePage() {
                                                     <h4 className="text-[10px] font-black text-surface-400 uppercase tracking-[0.2em] mb-6">Dispatch Manifest</h4>
                                                     <div className="flex -space-x-4 overflow-hidden">
                                                         {order.orderItems.map((item: any, i: number) => (
-                                                            <motion.div 
+                                                            <m.div 
                                                                 whileHover={{ scale: 1.2, zIndex: 10, rotate: 6 }}
                                                                 key={i} 
                                                                 className="relative w-14 h-14 rounded-2xl border-[3px] border-white overflow-hidden bg-white shadow-xl cursor-help" 
-                                                                title={item.product.name}
+                                                                title={item.product?.name}
                                                             >
-                                                                <img src={item.product.image} className="w-full h-full object-cover" alt={item.product.name} />
-                                                            </motion.div>
+                                                                <img src={item.product?.image} className="w-full h-full object-cover" alt={item.product?.name} />
+                                                            </m.div>
                                                         ))}
                                                         {order.orderItems.length > 5 && (
                                                             <div className="w-14 h-14 rounded-2xl border-[3px] border-white bg-surface-950 text-white flex items-center justify-center text-[10px] font-black shadow-xl">
@@ -220,7 +228,7 @@ export default function ProfilePage() {
                                                     </button>
                                                 </div>
                                             </div>
-                                        </motion.div>
+                                        </m.div>
                                     ))}
                                 </div>
                             )}

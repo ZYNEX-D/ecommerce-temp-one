@@ -13,6 +13,8 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+const m = motion as any;
+
 const navItems = [
     { icon: LayoutDashboard, label: "Dashboard", href: "/admin" },
     { icon: Package, label: "Products", href: "/admin/products" },
@@ -25,17 +27,17 @@ export function AdminSidebar() {
     const pathname = usePathname();
 
     return (
-        <div className="w-64 bg-white border-r border-surface-200 h-screen fixed left-0 top-0 flex flex-col z-50 shadow-sm">
+        <div className="w-64 bg-white border-r border-surface-200 h-screen fixed left-0 top-0 flex flex-col z-50 shadow-sm font-outfit">
             {/* Brand */}
             <div className="h-20 flex items-center px-6 border-b border-surface-200">
                 <Link href="/admin" className="flex items-center gap-2 group">
-                    <motion.div
+                    <m.div
                         whileHover={{ rotate: 90 }}
                         className="text-brand-600"
                     >
                         <Hexagon size={28} />
-                    </motion.div>
-                    <span className="font-outfit font-black text-xl tracking-tight text-surface-950 group-hover:text-brand-600 transition-colors uppercase">
+                    </m.div>
+                    <span className="font-black text-xl tracking-tight text-surface-950 group-hover:text-brand-600 transition-colors uppercase">
                         APEX ADMIN
                     </span>
                 </Link>
@@ -57,7 +59,7 @@ export function AdminSidebar() {
                             <item.icon size={20} className={isActive ? "text-brand-600" : ""} />
                             {item.label}
                             {isActive && (
-                                <motion.div
+                                <m.div
                                     layoutId="activeTab"
                                     className="absolute left-0 w-1.5 h-8 bg-brand-600 rounded-r-full"
                                 />

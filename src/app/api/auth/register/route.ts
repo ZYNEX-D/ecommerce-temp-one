@@ -29,16 +29,13 @@ export async function POST(req: Request) {
             }
         });
 
-        const token = signToken({ id: user.id, email: user.email, role: user.role });
-
         return NextResponse.json({
             user: {
                 id: user.id,
                 email: user.email,
                 name: user.name,
                 role: user.role.toLowerCase()
-            },
-            token
+            }
         });
     } catch (error) {
         console.error('Registration error:', error);
