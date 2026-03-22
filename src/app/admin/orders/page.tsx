@@ -71,6 +71,7 @@ export default function AdminOrders() {
             case 'PROCESSING': return 'bg-amber-50 text-amber-600 border-amber-100';
             case 'SHIPPED': return 'bg-blue-50 text-blue-600 border-blue-100';
             case 'CANCELLED': return 'bg-red-50 text-red-600 border-red-100';
+            case 'CANCELLATION_REQUESTED': return 'bg-purple-50 text-purple-600 border-purple-100';
             default: return 'bg-surface-50 text-surface-500 border-surface-100';
         }
     };
@@ -88,7 +89,7 @@ export default function AdminOrders() {
             </div>
 
             {/* Toolbar */}
-            <div className="bg-white p-6 rounded-[2.5rem] border border-surface-200 shadow-sm flex flex-col sm:flex-row gap-4 items-center justify-between">
+            <div className="bg-white p-6 rounded-2xl border border-surface-200 shadow-sm flex flex-col sm:flex-row gap-4 items-center justify-between">
                 <div className="relative w-full sm:w-96">
                     <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-surface-400" />
                     <input
@@ -96,12 +97,12 @@ export default function AdminOrders() {
                         placeholder="Search IDs, customers, or emails..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full bg-surface-50 border border-surface-200 rounded-2xl py-3 pl-12 pr-6 text-surface-900 focus:outline-none focus:border-brand-500 transition-all font-bold placeholder:text-surface-300"
+                        className="w-full bg-surface-50 border border-surface-200 rounded-xl py-3 pl-12 pr-6 text-surface-900 focus:outline-none focus:border-brand-500 transition-all font-bold placeholder:text-surface-300"
                     />
                 </div>
 
                 <div className="flex gap-3">
-                    <select className="bg-surface-50 border border-surface-200 rounded-2xl py-3 px-6 text-surface-600 font-bold focus:outline-none hover:border-surface-400 cursor-pointer transition-colors">
+                    <select className="bg-surface-50 border border-surface-200 rounded-xl py-3 px-6 text-surface-600 font-bold focus:outline-none hover:border-surface-400 cursor-pointer transition-colors">
                         <option value="all">Every Status</option>
                         <option value="completed">Completed</option>
                         <option value="processing">Processing</option>
@@ -111,7 +112,7 @@ export default function AdminOrders() {
             </div>
 
             {/* Table */}
-            <div className="bg-white rounded-[2.5rem] border border-surface-200 shadow-sm overflow-hidden">
+            <div className="bg-white rounded-2xl border border-surface-200 shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
                     {loading ? (
                         <div className="flex items-center justify-center py-24">
@@ -148,7 +149,7 @@ export default function AdminOrders() {
                                             </span>
                                         </td>
                                         <td className="py-5 px-8">
-                                            <div className="font-bold text-surface-950 text-sm">{order.shippingName}</div>
+                                            <div className="font-bold text-surface-950 text-sm">{order.shippingFirstName} {order.shippingLastName}</div>
                                             <div className="text-[10px] font-bold text-surface-400 uppercase tracking-widest">{order.user?.email || 'Guest User'}</div>
                                         </td>
                                         <td className="py-5 px-8">
@@ -164,13 +165,14 @@ export default function AdminOrders() {
                                                 <select
                                                     value={order.status.toUpperCase()}
                                                     onChange={(e) => handleStatusUpdate(order.id, e.target.value)}
-                                                    className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border cursor-pointer outline-none transition-all ${getStatusStyle(order.status)}`}
+                                                    className={`inline-flex items-center gap-2 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border cursor-pointer outline-none transition-all ${getStatusStyle(order.status)}`}
                                                 >
                                                     <option value="PENDING">Pending</option>
                                                     <option value="PROCESSING">Processing</option>
                                                     <option value="SHIPPED">Shipped</option>
                                                     <option value="DELIVERED">Delivered</option>
                                                     <option value="CANCELLED">Cancelled</option>
+                                                    <option value="CANCELLATION_REQUESTED">Cancellation Requested</option>
                                                 </select>
                                                 <span className="text-[10px] font-black text-surface-400 uppercase tracking-widest ml-1">{order.orderItems?.length || 0} UNIT(S)</span>
                                             </div>

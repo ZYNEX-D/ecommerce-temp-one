@@ -86,7 +86,7 @@ export function Hero() {
                     <Link href="/products" className="apex-button min-w-[240px]">
                         SHOP CATALOG <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
                     </Link>
-                    <Link href="/categories" className="px-8 py-4 bg-white border border-surface-200 hover:border-brand-600 text-surface-950 font-black rounded-2xl transition-all duration-300 active:scale-95 flex items-center justify-center gap-2 shadow-sm uppercase tracking-widest text-sm min-w-[240px]">
+                    <Link href="/categories" className="px-8 py-4 bg-white border border-surface-200 hover:border-brand-600 text-surface-950 font-black rounded-xl transition-all duration-300 active:scale-95 flex items-center justify-center gap-2 shadow-sm uppercase tracking-widest text-sm min-w-[240px]">
                         VIEW CATEGORIES
                     </Link>
                 </m.div>
@@ -103,8 +103,8 @@ export function Hero() {
                         { icon: Target, title: "Exact Fitment", desc: "Guaranteed compatibility" },
                         { icon: Box, title: "Quality Assured", desc: "Exceeding OEM standards" },
                     ].map((feature, idx) => (
-                        <div key={idx} className="bg-white/50 backdrop-blur-sm p-8 rounded-[2rem] border border-surface-200 hover:border-brand-300 transition-all group hover:bg-white hover:shadow-xl">
-                            <div className="w-14 h-14 rounded-2xl bg-brand-50 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-brand-600 group-hover:text-white transition-all duration-300">
+                        <div key={idx} className="bg-white/50 backdrop-blur-sm p-8 rounded-2xl border border-surface-200 hover:border-brand-300 transition-all group hover:bg-white hover:shadow-xl">
+                            <div className="w-14 h-14 rounded-xl bg-brand-50 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-brand-600 group-hover:text-white transition-all duration-300">
                                 <feature.icon size={28} className="text-brand-600 group-hover:text-white" />
                             </div>
                             <h3 className="text-2xl font-black text-surface-950 mb-3 uppercase tracking-tight">{feature.title}</h3>
@@ -165,7 +165,7 @@ export function FeaturedProducts() {
 
                                 <div className="flex items-center justify-between border-t border-surface-100 pt-8">
                                     <PriceDisplay amount={product.price} className="text-4xl font-black text-surface-950" />
-                                    <Link href={`/products/${product.id}`} className="w-14 h-14 bg-brand-600 hover:bg-brand-700 text-white rounded-2xl flex items-center justify-center transition-all duration-300 shadow-lg shadow-brand-600/20 active:scale-90">
+                                    <Link href={`/products/${product.id}`} className="w-14 h-14 bg-brand-600 hover:bg-brand-700 text-white rounded-lg flex items-center justify-center transition-all duration-300 shadow-lg shadow-brand-600/20 active:scale-90">
                                         <ShoppingCart size={24} />
                                     </Link>
                                 </div>

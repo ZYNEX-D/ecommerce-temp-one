@@ -4,7 +4,7 @@
 import { motion } from "framer-motion";
 import { Mail, Lock, User, UserPlus, ArrowRight, ShieldCheck, CheckCircle2, AlertCircle } from "lucide-react";
 import { signIn } from "next-auth/react";
-import { toast } from "sonner";
+import { alerts } from "@/lib/alerts";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -29,11 +29,11 @@ export default function CustomerRegister() {
             const data = await res.json();
 
             if (!res.ok) {
-                toast.error(data.error || "Registration failed.");
+                alerts.error(data.error || "Registration failed.");
                 return;
             }
 
-            toast.success("Account created successfully! Signing in...");
+            alerts.success("Account created successfully! Signing in...");
             
             // Auto login after registration
             await signIn("credentials", {
@@ -42,7 +42,7 @@ export default function CustomerRegister() {
                 callbackUrl: "/",
             });
         } catch (err) {
-            toast.error("An unexpected error occurred.");
+            alerts.error("An unexpected error occurred.");
         } finally {
             setLoading(false);
         }
@@ -54,10 +54,10 @@ export default function CustomerRegister() {
                 <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="bg-white rounded-[3rem] p-8 md:p-12 border border-surface-200 shadow-2xl relative overflow-hidden"
+                    className="bg-white rounded-3xl p-8 md:p-12 border border-surface-200 shadow-2xl relative overflow-hidden"
                 >
                     <div className="mb-10 text-center">
-                        <div className="w-20 h-20 bg-brand-50 rounded-3xl flex items-center justify-center text-brand-600 mx-auto mb-6">
+                        <div className="w-20 h-20 bg-brand-50 rounded-2xl flex items-center justify-center text-brand-600 mx-auto mb-6">
                             <UserPlus size={40} />
                         </div>
                         <h1 className="text-4xl font-black text-surface-950 uppercase tracking-tighter mb-2">Join <span className="text-brand-600">Apex Auto</span></h1>
@@ -74,7 +74,7 @@ export default function CustomerRegister() {
                                     required
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
-                                    className="w-full bg-surface-50 border border-surface-200 rounded-2xl pl-12 pr-4 py-4 focus:outline-none focus:border-brand-500 transition-all font-bold placeholder:text-surface-300"
+                                    className="w-full bg-surface-50 border border-surface-200 rounded-lg pl-12 pr-4 py-4 focus:outline-none focus:border-brand-500 transition-all font-bold placeholder:text-surface-300"
                                     placeholder="John Doe"
                                 />
                             </div>
@@ -89,7 +89,7 @@ export default function CustomerRegister() {
                                     required
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full bg-surface-50 border border-surface-200 rounded-2xl pl-12 pr-4 py-4 focus:outline-none focus:border-brand-500 transition-all font-bold placeholder:text-surface-300"
+                                    className="w-full bg-surface-50 border border-surface-200 rounded-lg pl-12 pr-4 py-4 focus:outline-none focus:border-brand-500 transition-all font-bold placeholder:text-surface-300"
                                     placeholder="name@email.com"
                                 />
                             </div>
@@ -104,13 +104,13 @@ export default function CustomerRegister() {
                                     required
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full bg-surface-50 border border-surface-200 rounded-2xl pl-12 pr-4 py-4 focus:outline-none focus:border-brand-500 transition-all font-bold placeholder:text-surface-300"
+                                    className="w-full bg-surface-50 border border-surface-200 rounded-lg pl-12 pr-4 py-4 focus:outline-none focus:border-brand-500 transition-all font-bold placeholder:text-surface-300"
                                     placeholder="••••••••"
                                 />
                             </div>
                         </div>
 
-                        <div className="bg-surface-50 p-4 rounded-2xl border border-surface-100 flex items-start gap-3">
+                        <div className="bg-surface-50 p-4 rounded-xl border border-surface-100 flex items-start gap-3">
                             <ShieldCheck className="text-emerald-600 mt-1 shrink-0" size={18} />
                             <p className="text-[10px] text-surface-400 font-medium leading-relaxed">
                                 By creating an account, you agree to our <span className="text-surface-950 font-bold">Terms of Service</span> and <span className="text-surface-950 font-bold">Privacy Policy</span>. We use your data strictly for order fulfillment and internal security.
@@ -119,7 +119,7 @@ export default function CustomerRegister() {
 
                         <button
                             disabled={loading}
-                            className="w-full py-5 bg-brand-600 hover:bg-brand-700 disabled:bg-surface-300 text-white font-black rounded-2xl transition-all active:scale-[0.98] shadow-lg shadow-brand-600/20 uppercase tracking-widest flex items-center justify-center gap-3 text-lg group"
+                            className="w-full py-5 bg-brand-600 hover:bg-brand-700 disabled:bg-surface-300 text-white font-black rounded-lg transition-all active:scale-[0.98] shadow-lg shadow-brand-600/20 uppercase tracking-widest flex items-center justify-center gap-3 text-lg group"
                         >
                             {loading ? "Initializing..." : (
                                 <>

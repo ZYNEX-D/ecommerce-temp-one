@@ -29,7 +29,7 @@ export default function AboutPage() {
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.8 }}
-                        className="relative aspect-video rounded-3xl overflow-hidden shadow-2xl border border-surface-200"
+                        className="relative aspect-video rounded-2xl overflow-hidden shadow-2xl border border-surface-200"
                     >
                         <Image
                             src="https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&q=80&w=1200"
@@ -73,9 +73,9 @@ export default function AboutPage() {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: i * 0.1 }}
-                                className="bg-surface-50 p-8 rounded-2xl border border-surface-200 text-center group hover:border-brand-300 transition-colors"
+                                className="bg-surface-50 p-8 rounded-xl border border-surface-200 text-center group hover:border-brand-300 transition-colors"
                             >
-                                <div className="w-16 h-16 bg-brand-50 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+                                <div className="w-16 h-16 bg-brand-50 rounded-xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
                                     <value.icon className="text-brand-600" size={32} />
                                 </div>
                                 <h3 className="text-2xl font-bold font-outfit text-surface-950 mb-4">{value.title}</h3>
@@ -116,7 +116,7 @@ export default function AboutPage() {
                             </div>
                         </div>
 
-                        <div className="bg-surface-900/50 backdrop-blur-md p-8 rounded-3xl border border-surface-800">
+                        <div className="bg-surface-900/50 backdrop-blur-md p-8 rounded-2xl border border-surface-800">
                             <form className="space-y-6">
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">

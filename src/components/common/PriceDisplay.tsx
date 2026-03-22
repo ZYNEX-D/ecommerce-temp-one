@@ -36,7 +36,7 @@ export function PriceDisplay({ amount, className = "", showCode = false }: Price
 
     return (
         <span className={className}>
-            <span className="mr-0.5">{currency.symbol}</span>
+            <span className="text-[0.7em] mr-0.5 align-top mt-1 inline-block">{currency.symbol}</span>
             {formattedPrice}
             {showCode && <span className="ml-1 text-[0.7em] opacity-70 uppercase font-mono">{currency.code}</span>}
         </span>

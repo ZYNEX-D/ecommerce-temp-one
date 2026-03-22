@@ -7,7 +7,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
-import { toast } from "sonner";
+import { alerts } from "@/lib/alerts";
 
 export default function AdminLogin() {
     const [email, setEmail] = useState("");
@@ -26,12 +26,10 @@ export default function AdminLogin() {
         });
 
         if (result?.error) {
-            toast.error("Access Denied", {
-                description: "The credentials provided do not have administrative clearance."
-            });
+            alerts.error("Access Denied", "The credentials provided do not have administrative clearance.");
             setLoading(false);
         } else {
-            toast.success("Security Clearance Verified");
+            alerts.success("Security Clearance Verified");
             router.push("/admin/dashboard");
         }
     };
@@ -42,14 +40,14 @@ export default function AdminLogin() {
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-white rounded-[2.5rem] p-10 border border-surface-200 shadow-xl shadow-brand-600/5 relative overflow-hidden"
+                    className="bg-white rounded-3xl p-10 border border-surface-200 shadow-xl shadow-brand-600/5 relative overflow-hidden"
                 >
                     {/* Brand Header */}
                     <div className="flex flex-col items-center mb-10">
                         <motion.div
                             animate={{ rotate: 360 }}
                             transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                            className="w-16 h-16 bg-brand-50 rounded-2xl flex items-center justify-center text-brand-600 mb-6"
+                            className="w-16 h-16 bg-brand-50 rounded-xl flex items-center justify-center text-brand-600 mb-6"
                         >
                             <Hexagon size={32} />
                         </motion.div>
@@ -68,7 +66,7 @@ export default function AdminLogin() {
                                     required
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full bg-surface-50 border border-surface-200 rounded-2xl pl-12 pr-4 py-4 focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/5 transition-all font-bold placeholder:text-surface-300"
+                                    className="w-full bg-surface-50 border border-surface-200 rounded-xl pl-12 pr-4 py-4 focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/5 transition-all font-bold placeholder:text-surface-300"
                                     placeholder="admin@apexauto.com"
                                 />
                             </div>
@@ -83,7 +81,7 @@ export default function AdminLogin() {
                                     required
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full bg-surface-50 border border-surface-200 rounded-2xl pl-12 pr-4 py-4 focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/5 transition-all font-bold placeholder:text-surface-300"
+                                    className="w-full bg-surface-50 border border-surface-200 rounded-xl pl-12 pr-4 py-4 focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/5 transition-all font-bold placeholder:text-surface-300"
                                     placeholder="••••••••"
                                 />
                             </div>
@@ -91,7 +89,7 @@ export default function AdminLogin() {
 
                         <button
                             disabled={loading}
-                            className="w-full py-5 bg-brand-600 hover:bg-brand-700 disabled:bg-surface-300 text-white font-black rounded-2xl transition-all active:scale-[0.98] shadow-lg shadow-brand-600/20 uppercase tracking-widest flex items-center justify-center gap-3 group"
+                            className="w-full py-5 bg-brand-600 hover:bg-brand-700 disabled:bg-surface-300 text-white font-black rounded-xl transition-all active:scale-[0.98] shadow-lg shadow-brand-600/20 uppercase tracking-widest flex items-center justify-center gap-3 group"
                         >
                             {loading ? (
                                 "Initializing..."

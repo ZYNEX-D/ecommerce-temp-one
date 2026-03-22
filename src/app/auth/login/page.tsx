@@ -4,7 +4,7 @@
 import { motion } from "framer-motion";
 import { Mail, Lock, ArrowRight, UserPlus, LogIn, AlertCircle } from "lucide-react";
 import { signIn } from "next-auth/react";
-import { toast } from "sonner";
+import { alerts } from "@/lib/alerts";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -26,14 +26,14 @@ export default function CustomerLogin() {
             });
 
             if (result?.error) {
-                toast.error("Invalid credentials. Please try again.");
+                alerts.error("Invalid credentials. Please try again.");
             } else {
-                toast.success("Welcome back to Apex Auto!");
+                alerts.success("Welcome back to Apex Auto!");
                 router.push("/");
                 router.refresh();
             }
         } catch (err) {
-            toast.error("An unexpected error occurred.");
+            alerts.error("An unexpected error occurred.");
         } finally {
             setLoading(false);
         }
@@ -45,10 +45,10 @@ export default function CustomerLogin() {
                 <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="bg-white rounded-[3rem] p-8 md:p-12 border border-surface-200 shadow-2xl relative overflow-hidden"
+                    className="bg-white rounded-3xl p-8 md:p-12 border border-surface-200 shadow-2xl relative overflow-hidden"
                 >
                     <div className="mb-10 text-center">
-                        <div className="w-20 h-20 bg-brand-50 rounded-3xl flex items-center justify-center text-brand-600 mx-auto mb-6">
+                        <div className="w-20 h-20 bg-brand-50 rounded-2xl flex items-center justify-center text-brand-600 mx-auto mb-6">
                             <LogIn size={40} />
                         </div>
                         <h1 className="text-4xl font-black text-surface-950 uppercase tracking-tighter mb-2">Welcome <span className="text-brand-600">Back</span></h1>
@@ -63,7 +63,7 @@ export default function CustomerLogin() {
                                 required
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="w-full bg-surface-50 border border-surface-200 rounded-2xl px-6 py-4 focus:outline-none focus:border-brand-500 transition-all font-bold placeholder:text-surface-300"
+                                className="w-full bg-surface-50 border border-surface-200 rounded-lg px-6 py-4 focus:outline-none focus:border-brand-500 transition-all font-bold placeholder:text-surface-300"
                                 placeholder="name@email.com"
                             />
                         </div>
@@ -78,14 +78,14 @@ export default function CustomerLogin() {
                                 required
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="w-full bg-surface-50 border border-surface-200 rounded-2xl px-6 py-4 focus:outline-none focus:border-brand-500 transition-all font-bold placeholder:text-surface-300"
+                                className="w-full bg-surface-50 border border-surface-200 rounded-lg px-6 py-4 focus:outline-none focus:border-brand-500 transition-all font-bold placeholder:text-surface-300"
                                 placeholder="••••••••"
                             />
                         </div>
 
                         <button
                             disabled={loading}
-                            className="w-full py-5 bg-brand-600 hover:bg-brand-700 disabled:bg-surface-300 text-white font-black rounded-2xl transition-all active:scale-[0.98] shadow-lg shadow-brand-600/20 uppercase tracking-widest flex items-center justify-center gap-3 text-lg"
+                            className="w-full py-5 bg-brand-600 hover:bg-brand-700 disabled:bg-surface-300 text-white font-black rounded-lg transition-all active:scale-[0.98] shadow-lg shadow-brand-600/20 uppercase tracking-widest flex items-center justify-center gap-3 text-lg"
                         >
                             {loading ? "Signing In..." : "Log In"}
                         </button>

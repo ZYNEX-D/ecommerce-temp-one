@@ -76,7 +76,7 @@ export default function AdminSettings() {
                 <button
                     onClick={handleSave}
                     disabled={isSaving}
-                    className="flex items-center gap-2 px-8 py-4 bg-brand-600 hover:bg-brand-700 disabled:bg-surface-300 text-white font-black rounded-2xl transition-all active:scale-95 shadow-xl shadow-brand-600/20 uppercase tracking-widest text-sm"
+                    className="flex items-center gap-2 px-8 py-4 bg-brand-600 hover:bg-brand-700 disabled:bg-surface-300 text-white font-black rounded-xl transition-all active:scale-95 shadow-xl shadow-brand-600/20 uppercase tracking-widest text-sm"
                 >
                     {isSaving ? <RefreshCw className="animate-spin" size={18} /> : <Save size={18} />}
                     {isSaving ? "Saving..." : "Save Changes"}
@@ -85,7 +85,7 @@ export default function AdminSettings() {
 
             <div className="grid grid-cols-1 gap-8">
                 {/* Branding Section */}
-                <section className="bg-white p-8 rounded-[2.5rem] border border-surface-200 shadow-sm">
+                <section className="bg-white p-8 rounded-3xl border border-surface-200 shadow-sm">
                     <div className="flex items-center gap-3 mb-8">
                         <div className="w-10 h-10 bg-brand-50 rounded-xl flex items-center justify-center text-brand-600">
                             <Tag size={24} />
@@ -99,7 +99,7 @@ export default function AdminSettings() {
                             <input
                                 value={settings.storeName}
                                 onChange={e => setSettings({ ...settings, storeName: e.target.value })}
-                                className="w-full bg-surface-50 border border-surface-200 rounded-2xl py-4 px-6 font-bold text-surface-900 focus:border-brand-500 outline-none transition-all"
+                                className="w-full bg-surface-50 border border-surface-200 rounded-xl py-4 px-6 font-bold text-surface-950 focus:border-brand-500 outline-none transition-all"
                                 placeholder="e.g. Apex Auto Spares"
                             />
                         </div>
@@ -107,7 +107,7 @@ export default function AdminSettings() {
                 </section>
 
                 {/* Currency Section */}
-                <section className="bg-white p-8 rounded-[2.5rem] border border-surface-200 shadow-sm">
+                <section className="bg-white p-8 rounded-3xl border border-surface-200 shadow-sm">
                     <div className="flex items-center gap-3 mb-8">
                         <div className="w-10 h-10 bg-brand-50 rounded-xl flex items-center justify-center text-brand-600">
                             <Globe size={24} />
@@ -123,7 +123,7 @@ export default function AdminSettings() {
                                 <input
                                     value={settings.currencyCode}
                                     onChange={e => setSettings({ ...settings, currencyCode: e.target.value.toUpperCase() })}
-                                    className="w-full bg-surface-50 border border-surface-200 rounded-2xl py-4 pl-20 pr-6 font-bold text-surface-900 focus:border-brand-500 outline-none transition-all"
+                                    className="w-full bg-surface-50 border border-surface-200 rounded-xl py-4 pl-20 pr-6 font-bold text-surface-900 focus:border-brand-500 outline-none transition-all"
                                     placeholder="USD, LKR, EUR"
                                 />
                             </div>
@@ -136,14 +136,14 @@ export default function AdminSettings() {
                                 <input
                                     value={settings.currencySymbol}
                                     onChange={e => setSettings({ ...settings, currencySymbol: e.target.value })}
-                                    className="w-full bg-surface-50 border border-surface-200 rounded-2xl py-4 pl-14 pr-6 font-bold text-surface-900 focus:border-brand-500 outline-none transition-all"
+                                    className="w-full bg-surface-50 border border-surface-200 rounded-xl py-4 pl-14 pr-6 font-bold text-surface-900 focus:border-brand-500 outline-none transition-all"
                                     placeholder="$, Rs, €"
                                 />
                             </div>
                         </div>
                     </div>
 
-                    <div className="mt-8 p-6 bg-amber-50 rounded-2xl border border-amber-100 flex items-start gap-4">
+                    <div className="mt-8 p-6 bg-amber-50 rounded-xl border border-amber-100 flex items-start gap-4">
                         <AlertCircle className="text-amber-600 shrink-0 mt-0.5" size={20} />
                         <div>
                             <p className="text-sm font-black text-amber-900 uppercase tracking-tight mb-1">Exchange Rate Reminder</p>
@@ -153,7 +153,7 @@ export default function AdminSettings() {
                 </section>
 
                 {/* System Stats Section */}
-                <section className="bg-white p-8 rounded-[2.5rem] border border-surface-200 shadow-sm opacity-60 grayscale pointer-events-none">
+                <section className="bg-white p-8 rounded-3xl border border-surface-200 shadow-sm opacity-60 grayscale pointer-events-none">
                     <div className="flex items-center gap-3 mb-8">
                         <div className="w-10 h-10 bg-surface-50 rounded-xl flex items-center justify-center text-surface-400">
                             <RefreshCw size={24} />

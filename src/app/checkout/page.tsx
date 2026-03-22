@@ -2,20 +2,25 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { toast } from "sonner";
-import { Truck, CreditCard, ShieldCheck, ChevronRight, Lock, ArrowLeft, CheckCircle2, Package, Clock } from "lucide-react";
-import { useState } from "react";
+import { alerts } from "@/lib/alerts";
+import { Truck, CreditCard, ShieldCheck, ChevronRight, Lock, ArrowLeft, CheckCircle2, Package, Landmark, Smartphone, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
 import { useCartStore } from "@/store/cartStore";
 import Image from "next/image";
 import Link from "next/link";
 import { PriceDisplay } from "@/components/common/PriceDisplay";
 
-type Step = "shipping" | "payment" | "success";
+type Step = "shipping" | "payment" | "bank_details" | "success";
+type PaymentMethod = "PAYHERE" | "BANK_TRANSFER";
 
 export default function CheckoutPage() {
     const [step, setStep] = useState<Step>("shipping");
+    const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("PAYHERE");
+    const [isProcessing, setIsProcessing] = useState(false);
+    const [payhereReady, setPayhereReady] = useState(false);
     const items = useCartStore((state) => state.items);
     const clearCart = useCartStore((state) => state.clearCart);
+    const [finalTotal, setFinalTotal] = useState(0);
     const total = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
     const [shippingData, setShippingData] = useState({
@@ -26,25 +31,86 @@ export default function CheckoutPage() {
         zip: "",
     });
 
-    const handleComplete = () => {
-        clearCart();
-        setStep("success");
-        toast.success("Order Placed Successfully!", {
-            description: "Your AX- series components are being prepared for dispatch.",
-            icon: <CheckCircle2 size={16} />
-        });
+    useEffect(() => {
+        // Load PayHere JS SDK (Sandbox)
+        const script = document.createElement("script");
+        script.src = "https://sandbox.payhere.lk/lib/payhere.js";
+        script.async = true;
+        script.onload = () => setPayhereReady(true);
+        document.body.appendChild(script);
+        return () => {
+            document.body.removeChild(script);
+        };
+    }, []);
+
+    const handleOrderSubmission = async () => {
+        setIsProcessing(true);
+        try {
+            const res = await fetch('/api/orders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    items,
+                    shippingData,
+                    total,
+                    paymentMethod
+                }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) throw new Error(data.error || "Order sequence failed.");
+
+            if (paymentMethod === "PAYHERE" && data.payhereData) {
+                if (!(window as any).payhere) {
+                    throw new Error("PayHere SDK failed to initialize. Please refresh the page.");
+                }
+
+                setFinalTotal(total);
+
+                // Trigger PayHere
+                (window as any).payhere.onCompleted = function(orderId: string) {
+                    clearCart();
+                    setStep("success");
+                    alerts.success("Payment Authorized Successfully!");
+                };
+
+                (window as any).payhere.onDismissed = function() {
+                    setIsProcessing(false);
+                    alerts.error("Payment sequence was dismissed.");
+                };
+
+                (window as any).payhere.onError = function(error: string) {
+                    setIsProcessing(false);
+                    alerts.error("Security Authentication Failed", error);
+                };
+
+                (window as any).payhere.startPayment(data.payhereData);
+            } else {
+                // Bank Transfer
+                setFinalTotal(total);
+                clearCart();
+                setStep("bank_details");
+                alerts.success("Order Registered. Awaiting Transfer.");
+            }
+        } catch (error: any) {
+            console.error("Checkout Error:", error);
+            alerts.error("Terminal Fault", error.message);
+        } finally {
+            if (paymentMethod === "BANK_TRANSFER") setIsProcessing(false);
+        }
     };
 
-    if (items.length === 0 && step !== "success") {
+    if (items.length === 0 && !["success", "bank_details"].includes(step)) {
         return (
             <div className="min-h-screen bg-surface-50 pt-32 pb-12 flex flex-col items-center justify-center container mx-auto px-4 text-center">
-                <div className="w-32 h-32 bg-white rounded-[2.5rem] flex items-center justify-center text-surface-200 mb-10 border border-surface-200 shadow-sm">
+                <div className="w-32 h-32 bg-white rounded-3xl flex items-center justify-center text-surface-200 mb-10 border border-surface-200 shadow-sm">
                     <Package size={56} />
                 </div>
                 <h1 className="text-5xl font-outfit font-black text-surface-950 uppercase mb-4 tracking-tighter">Your cart is empty</h1>
                 <p className="text-surface-500 font-medium mb-12 max-w-sm italic text-lg leading-relaxed">Boost your vehicle's performance with our precision components before checking out.</p>
                 <Link href="/products" className="apex-button">
-                    Browse Performance Catalog
+                    Browse Catalog
                 </Link>
             </div>
         );
@@ -54,7 +120,7 @@ export default function CheckoutPage() {
         <div className="min-h-screen bg-surface-50 pt-40 pb-24">
             <div className="container mx-auto px-4">
                 <div className="max-w-7xl mx-auto">
-                    {step !== "success" && (
+                    {!["success", "bank_details"].includes(step) && (
                         <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8">
                             <div>
                                 <motion.div
@@ -69,13 +135,13 @@ export default function CheckoutPage() {
                             </div>
 
                             {/* Progress Stepper */}
-                            <div className="flex items-center gap-6 bg-white p-3 rounded-3xl border border-surface-200 shadow-sm">
-                                <div className={`flex items-center gap-3 px-6 py-3 rounded-2xl transition-all duration-500 ${step === "shipping" ? "bg-brand-600 text-white shadow-lg shadow-brand-600/20" : "text-surface-400 font-bold"}`}>
+                            <div className="flex items-center gap-6 bg-white p-3 rounded-2xl border border-surface-200 shadow-sm">
+                                <div className={`flex items-center gap-3 px-6 py-3 rounded-xl transition-all duration-500 ${step === "shipping" ? "bg-brand-600 text-white shadow-lg shadow-brand-600/20" : "text-surface-400 font-bold"}`}>
                                     <Truck size={20} />
                                     <span className="font-black text-xs uppercase tracking-widest hidden sm:inline">Shipping</span>
                                 </div>
                                 <ChevronRight size={18} className="text-surface-200" />
-                                <div className={`flex items-center gap-3 px-6 py-3 rounded-2xl transition-all duration-500 ${step === "payment" ? "bg-brand-600 text-white shadow-lg shadow-brand-600/20" : "text-surface-400 font-bold"}`}>
+                                <div className={`flex items-center gap-3 px-6 py-3 rounded-xl transition-all duration-500 ${step === "payment" ? "bg-brand-600 text-white shadow-lg shadow-brand-600/20" : "text-surface-400 font-bold"}`}>
                                     <CreditCard size={20} />
                                     <span className="font-black text-xs uppercase tracking-widest hidden sm:inline">Payment</span>
                                 </div>
@@ -93,10 +159,10 @@ export default function CheckoutPage() {
                                         initial={{ opacity: 0, scale: 0.98 }}
                                         animate={{ opacity: 1, scale: 1 }}
                                         exit={{ opacity: 0, scale: 0.98 }}
-                                        className="bg-white rounded-[3rem] p-10 md:p-16 border border-surface-200 shadow-sm"
+                                        className="bg-white rounded-3xl p-10 md:p-16 border border-surface-200 shadow-sm"
                                     >
                                         <h2 className="text-3xl font-black text-surface-950 mb-12 uppercase tracking-tighter flex items-center gap-4">
-                                            <div className="w-12 h-12 bg-brand-50 rounded-2xl flex items-center justify-center text-brand-600 shadow-inner">
+                                            <div className="w-12 h-12 bg-brand-50 rounded-xl flex items-center justify-center text-brand-600 shadow-inner">
                                                 <Truck size={24} />
                                             </div>
                                             Logistics Destination
@@ -107,7 +173,7 @@ export default function CheckoutPage() {
                                                 <label className="text-[10px] font-black text-surface-400 uppercase tracking-widest ml-1">First Name</label>
                                                 <input
                                                     type="text"
-                                                    className="w-full bg-surface-50 border-2 border-surface-100 rounded-2xl px-8 py-5 focus:outline-none focus:border-brand-600 font-bold text-surface-950 transition-all"
+                                                    className="w-full bg-surface-50 border-2 border-surface-100 rounded-xl px-8 py-5 focus:outline-none focus:border-brand-600 font-bold text-surface-950 transition-all font-outfit"
                                                     placeholder="e.g. Lewis"
                                                     value={shippingData.firstName}
                                                     onChange={e => setShippingData({ ...shippingData, firstName: e.target.value })}
@@ -117,7 +183,7 @@ export default function CheckoutPage() {
                                                 <label className="text-[10px] font-black text-surface-400 uppercase tracking-widest ml-1">Last Name</label>
                                                 <input
                                                     type="text"
-                                                    className="w-full bg-surface-50 border-2 border-surface-100 rounded-2xl px-8 py-5 focus:outline-none focus:border-brand-600 font-bold text-surface-950 transition-all"
+                                                    className="w-full bg-surface-50 border-2 border-surface-100 rounded-xl px-8 py-5 focus:outline-none focus:border-brand-600 font-bold text-surface-950 transition-all font-outfit"
                                                     placeholder="e.g. Hamilton"
                                                     value={shippingData.lastName}
                                                     onChange={e => setShippingData({ ...shippingData, lastName: e.target.value })}
@@ -130,7 +196,7 @@ export default function CheckoutPage() {
                                                 <label className="text-[10px] font-black text-surface-400 uppercase tracking-widest ml-1">Fleet Delivery Address</label>
                                                 <input
                                                     type="text"
-                                                    className="w-full bg-surface-50 border-2 border-surface-100 rounded-2xl px-8 py-5 focus:outline-none focus:border-brand-600 font-bold text-surface-950 transition-all"
+                                                    className="w-full bg-surface-50 border-2 border-surface-100 rounded-xl px-8 py-5 focus:outline-none focus:border-brand-600 font-bold text-surface-950 transition-all font-outfit"
                                                     placeholder="123 Performance Way"
                                                     value={shippingData.address}
                                                     onChange={e => setShippingData({ ...shippingData, address: e.target.value })}
@@ -141,7 +207,7 @@ export default function CheckoutPage() {
                                                     <label className="text-[10px] font-black text-surface-400 uppercase tracking-widest ml-1">City</label>
                                                     <input
                                                         type="text"
-                                                        className="w-full bg-surface-50 border-2 border-surface-100 rounded-2xl px-8 py-5 focus:outline-none focus:border-brand-600 font-bold text-surface-950 transition-all"
+                                                        className="w-full bg-surface-50 border-2 border-surface-100 rounded-xl px-8 py-5 focus:outline-none focus:border-brand-600 font-bold text-surface-950 transition-all font-outfit"
                                                         placeholder="Detroit"
                                                         value={shippingData.city}
                                                         onChange={e => setShippingData({ ...shippingData, city: e.target.value })}
@@ -151,7 +217,7 @@ export default function CheckoutPage() {
                                                     <label className="text-[10px] font-black text-surface-400 uppercase tracking-widest ml-1">Zip / Postal</label>
                                                     <input
                                                         type="text"
-                                                        className="w-full bg-surface-50 border-2 border-surface-100 rounded-2xl px-8 py-5 focus:outline-none focus:border-brand-600 font-bold text-surface-950 transition-all"
+                                                        className="w-full bg-surface-50 border-2 border-surface-100 rounded-xl px-8 py-5 focus:outline-none focus:border-brand-600 font-bold text-surface-950 transition-all font-outfit"
                                                         placeholder="48201"
                                                         value={shippingData.zip}
                                                         onChange={e => setShippingData({ ...shippingData, zip: e.target.value })}
@@ -161,10 +227,16 @@ export default function CheckoutPage() {
                                         </div>
 
                                         <button
-                                            onClick={() => setStep("payment")}
+                                            onClick={() => {
+                                                if (!shippingData.firstName || !shippingData.address || !shippingData.city) {
+                                                    alerts.error("Missing Logistics Data", "Please complete all shipping fields to proceed.");
+                                                    return;
+                                                }
+                                                setStep("payment");
+                                            }}
                                             className="apex-button w-full py-6 text-base"
                                         >
-                                            Continue to Payment Gateway <ChevronRight size={20} />
+                                            Continue to Payment Selection <ChevronRight size={20} />
                                         </button>
                                     </motion.div>
                                 )}
@@ -175,7 +247,7 @@ export default function CheckoutPage() {
                                         initial={{ opacity: 0, scale: 0.98 }}
                                         animate={{ opacity: 1, scale: 1 }}
                                         exit={{ opacity: 0, scale: 0.98 }}
-                                        className="bg-white rounded-[3rem] p-10 md:p-16 border border-surface-200 shadow-sm"
+                                        className="bg-white rounded-3xl p-10 md:p-16 border border-surface-200 shadow-sm"
                                     >
                                         <button
                                             onClick={() => setStep("shipping")}
@@ -185,64 +257,97 @@ export default function CheckoutPage() {
                                         </button>
 
                                         <h2 className="text-3xl font-black text-surface-950 mb-12 uppercase tracking-tighter flex items-center gap-4">
-                                            <div className="w-12 h-12 bg-brand-50 rounded-2xl flex items-center justify-center text-brand-600 shadow-inner">
+                                            <div className="w-12 h-12 bg-brand-50 rounded-xl flex items-center justify-center text-brand-600 shadow-inner">
                                                 <CreditCard size={24} />
                                             </div>
-                                            Secure Payment Gateway
+                                            Payment Protocol
                                         </h2>
 
-                                        <div className="space-y-10 mb-12">
-                                            <div className="p-10 bg-surface-950 rounded-[2.5rem] text-white relative overflow-hidden group shadow-2xl">
-                                                <div className="absolute top-0 right-0 p-12 opacity-10 transform rotate-12 group-hover:scale-110 transition-transform duration-1000">
-                                                    <CreditCard size={200} />
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+                                            <button
+                                                onClick={() => setPaymentMethod("PAYHERE")}
+                                                className={`p-10 rounded-2xl border-2 transition-all text-left flex flex-col gap-6 relative overflow-hidden group ${paymentMethod === "PAYHERE" ? "border-brand-600 bg-brand-50/30 shadow-lg" : "border-surface-100 hover:border-surface-200"}`}
+                                            >
+                                                <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${paymentMethod === "PAYHERE" ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-400"}`}>
+                                                    <Smartphone size={24} />
                                                 </div>
-                                                <div className="relative z-10">
-                                                    <div className="flex justify-between items-start mb-20">
-                                                        <div className="w-16 h-12 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-xl" />
-                                                        <span className="font-outfit font-black text-3xl italic tracking-tighter text-brand-500">APEX SECURE</span>
-                                                    </div>
-                                                    <p className="text-3xl md:text-4xl font-mono tracking-[0.3em] mb-8">•••• •••• •••• 4012</p>
-                                                    <div className="flex justify-between items-end">
-                                                        <div>
-                                                            <p className="text-[10px] uppercase tracking-widest opacity-40 mb-2 font-black">Authorized Holder</p>
-                                                            <p className="font-black tracking-widest text-xl uppercase font-outfit">{shippingData.firstName || "PERFORMANCE"} {shippingData.lastName || "CLIENT"}</p>
-                                                        </div>
-                                                        <div className="text-right">
-                                                            <p className="text-[10px] uppercase tracking-widest opacity-40 mb-2 font-black">Valid Thru</p>
-                                                            <p className="font-black tracking-widest text-xl font-outfit">12 / 28</p>
-                                                        </div>
-                                                    </div>
+                                                <div>
+                                                    <h3 className="font-black text-surface-950 uppercase tracking-tight text-xl mb-2 font-outfit">PayHere Online</h3>
+                                                    <p className="text-xs font-medium text-surface-500 italic">Credit Cards, Mobile Wallets, Net Banking (Instant Authorization)</p>
                                                 </div>
-                                            </div>
+                                                {paymentMethod === "PAYHERE" && <div className="absolute top-6 right-6 text-brand-600"><CheckCircle2 size={24} /></div>}
+                                            </button>
 
-                                            <div className="grid grid-cols-2 gap-8">
-                                                <div className="space-y-3">
-                                                    <label className="text-[10px] font-black text-surface-400 uppercase tracking-widest ml-1">Card Number</label>
-                                                    <input readOnly type="text" className="w-full bg-surface-50 border-2 border-surface-100 rounded-2xl px-8 py-5 font-black text-surface-950" value="•••• •••• •••• 4012" />
+                                            <button
+                                                onClick={() => setPaymentMethod("BANK_TRANSFER")}
+                                                className={`p-10 rounded-2xl border-2 transition-all text-left flex flex-col gap-6 relative overflow-hidden group ${paymentMethod === "BANK_TRANSFER" ? "border-brand-600 bg-brand-50/30 shadow-lg" : "border-surface-100 hover:border-surface-200"}`}
+                                            >
+                                                <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${paymentMethod === "BANK_TRANSFER" ? "bg-brand-600 text-white" : "bg-surface-100 text-surface-400"}`}>
+                                                    <Landmark size={24} />
                                                 </div>
-                                                <div className="grid grid-cols-2 gap-6">
-                                                    <div className="space-y-3">
-                                                        <label className="text-[10px] font-black text-surface-400 uppercase tracking-widest ml-1">Expiry</label>
-                                                        <input readOnly type="text" className="w-full bg-surface-50 border-2 border-surface-100 rounded-2xl px-8 py-5 font-black text-surface-950" value="12/28" />
-                                                    </div>
-                                                    <div className="space-y-3">
-                                                        <label className="text-[10px] font-black text-surface-400 uppercase tracking-widest ml-1">CVV</label>
-                                                        <input readOnly type="password" className="w-full bg-surface-50 border-2 border-surface-100 rounded-2xl px-8 py-5 font-black text-surface-950" value="•••" />
-                                                    </div>
+                                                <div>
+                                                    <h3 className="font-black text-surface-950 uppercase tracking-tight text-xl mb-2 font-outfit">Bank Transfer</h3>
+                                                    <p className="text-xs font-medium text-surface-500 italic">Manual bank deposit or online transfer (Manual Verification)</p>
                                                 </div>
-                                            </div>
+                                                {paymentMethod === "BANK_TRANSFER" && <div className="absolute top-6 right-6 text-brand-600"><CheckCircle2 size={24} /></div>}
+                                            </button>
                                         </div>
 
                                         <button
-                                            onClick={handleComplete}
-                                            className="w-full py-6 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-2xl transition-all shadow-xl shadow-emerald-600/20 uppercase tracking-[0.2em] flex items-center justify-center gap-3 active:scale-95 text-base"
+                                            onClick={handleOrderSubmission}
+                                            disabled={isProcessing || (paymentMethod === "PAYHERE" && !payhereReady)}
+                                            className="w-full py-6 bg-brand-600 hover:bg-brand-700 disabled:bg-surface-300 text-white font-black rounded-xl transition-all shadow-xl shadow-brand-600/20 uppercase tracking-[0.2em] flex items-center justify-center gap-3 active:scale-95 text-base"
                                         >
-                                            AUTHORIZE PAYMENT <ShieldCheck size={22} />
+                                            {isProcessing ? (
+                                                <>INITIALIZING GATEWAY <Loader2 className="animate-spin" size={22} /></>
+                                            ) : paymentMethod === "PAYHERE" && !payhereReady ? (
+                                                <>SYNCHRONIZING SECURE GATEWAY <Loader2 className="animate-spin" size={22} /></>
+                                            ) : (
+                                                <>DEPLOY ORDER SEQUENCE <ShieldCheck size={22} /></>
+                                            )}
                                         </button>
-                                        <div className="flex items-center justify-center gap-4 mt-8 opacity-40 grayscale group-hover:grayscale-0 transition-all">
-                                            <div className="h-6 w-12 bg-surface-200 rounded" />
-                                            <div className="h-6 w-12 bg-surface-200 rounded" />
-                                            <div className="h-6 w-12 bg-surface-200 rounded" />
+                                    </motion.div>
+                                )}
+
+                                {step === "bank_details" && (
+                                    <motion.div
+                                        key="bank_details"
+                                        initial={{ opacity: 0, scale: 0.98 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        className="bg-white rounded-3xl p-16 md:p-24 border border-surface-200 shadow-2xl text-center"
+                                    >
+                                        <div className="w-32 h-32 bg-brand-50 rounded-2xl flex items-center justify-center text-brand-600 mx-auto mb-12 border border-brand-100 shadow-inner">
+                                            <Landmark size={64} />
+                                        </div>
+                                        <h2 className="text-4xl md:text-5xl font-outfit font-black text-surface-950 uppercase tracking-tighter mb-6 leading-none">ORDER <span className="text-brand-600">PENDING</span></h2>
+                                        <p className="text-surface-500 font-medium text-lg mb-12 max-w-sm mx-auto italic">To finalize your acquisition, please execute a bank transfer using the details below.</p>
+                                        
+                                        <div className="bg-surface-50 p-10 rounded-3xl border-2 border-dashed border-surface-200 text-left space-y-8 mb-12">
+                                            <div className="flex justify-between items-center pb-6 border-b border-surface-200">
+                                                <span className="text-[10px] font-black text-surface-400 uppercase tracking-widest">Bank Entity</span>
+                                                <span className="font-black text-surface-950 font-outfit uppercase tracking-tight">Apex Automotive Bank (PVT) Ltd</span>
+                                            </div>
+                                            <div className="flex justify-between items-center pb-6 border-b border-surface-200">
+                                                <span className="text-[10px] font-black text-surface-400 uppercase tracking-widest">Account Number</span>
+                                                <span className="font-black text-surface-950 font-outfit text-xl tracking-widest">009-1234567-001</span>
+                                            </div>
+                                            <div className="flex justify-between items-center pb-6 border-b border-surface-200">
+                                                <span className="text-[10px] font-black text-surface-400 uppercase tracking-widest">Swift / Branch</span>
+                                                <span className="font-black text-surface-950 font-outfit uppercase tracking-tight">Kandy Main - 045</span>
+                                            </div>
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-[10px] font-black text-surface-400 uppercase tracking-widest">Transfer Amount</span>
+                                                <PriceDisplay amount={finalTotal} className="text-2xl font-black text-brand-600 font-outfit tracking-tighter" />
+                                            </div>
+                                        </div>
+
+                                        <div className="flex flex-col sm:flex-row gap-6 justify-center">
+                                            <Link href="/products" className="apex-button px-12">
+                                                Return to Catalog
+                                            </Link>
+                                            <Link href="/profile" className="px-12 py-5 bg-surface-950 hover:bg-black text-white font-black rounded-xl transition-all uppercase tracking-widest text-sm shadow-xl flex items-center justify-center gap-3">
+                                                Order Status <Truck size={20} />
+                                            </Link>
                                         </div>
                                     </motion.div>
                                 )}
@@ -252,20 +357,20 @@ export default function CheckoutPage() {
                                         key="success"
                                         initial={{ opacity: 0, y: 40 }}
                                         animate={{ opacity: 1, y: 0 }}
-                                        className="bg-white rounded-[4rem] p-16 md:p-32 border border-surface-200 shadow-2xl text-center relative overflow-hidden"
+                                        className="bg-white rounded-3xl p-16 md:p-32 border border-surface-200 shadow-2xl text-center relative overflow-hidden"
                                     >
                                         <div className="absolute top-0 inset-x-0 h-2 bg-emerald-500" />
-                                        <div className="w-32 h-32 bg-emerald-50 rounded-[3rem] flex items-center justify-center text-emerald-600 mx-auto mb-12 border border-emerald-100 shadow-inner">
+                                        <div className="w-32 h-32 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 mx-auto mb-12 border border-emerald-100 shadow-inner">
                                             <CheckCircle2 size={64} className="animate-bounce" />
                                         </div>
-                                        <h2 className="text-5xl md:text-7xl font-outfit font-black text-surface-950 uppercase tracking-tighter mb-6 leading-none">ORDER <span className="text-emerald-600">CONFIRMED</span></h2>
-                                        <p className="text-surface-500 font-medium text-xl mb-16 max-w-sm mx-auto italic">High-performance components secured. Order #AX-90210 is now entering the logistics queue.</p>
+                                        <h2 className="text-5xl md:text-7xl font-outfit font-black text-surface-950 uppercase tracking-tighter mb-6 leading-none">TRANSACTION <span className="text-emerald-600">SECURED</span></h2>
+                                        <p className="text-surface-500 font-medium text-xl mb-16 max-w-sm mx-auto italic">Payment authorized successfully. Your order is now prioritized in the engineering queue. Amount: <PriceDisplay amount={finalTotal} /></p>
 
                                         <div className="flex flex-col sm:flex-row gap-6 justify-center">
                                             <Link href="/products" className="apex-button px-12">
                                                 Return to Shop
                                             </Link>
-                                            <Link href="/profile" className="px-12 py-5 bg-surface-950 hover:bg-black text-white font-black rounded-2xl transition-all uppercase tracking-widest text-sm shadow-xl flex items-center justify-center gap-3">
+                                            <Link href="/profile" className="px-12 py-5 bg-surface-950 hover:bg-black text-white font-black rounded-xl transition-all uppercase tracking-widest text-sm shadow-xl flex items-center justify-center gap-3">
                                                 Track Delivery <Truck size={20} />
                                             </Link>
                                         </div>
@@ -275,9 +380,9 @@ export default function CheckoutPage() {
                         </div>
 
                         {/* Order Summary Sidebar */}
-                        {step !== "success" && (
+                        {!["success", "bank_details"].includes(step) && (
                             <aside className="lg:col-span-4 sticky top-40">
-                                <div className="bg-white rounded-[3rem] p-10 border border-surface-200 shadow-xl">
+                                <div className="bg-white rounded-3xl p-10 border border-surface-200 shadow-xl">
                                     <h3 className="text-2xl font-black text-surface-950 mb-10 uppercase tracking-tighter font-outfit">Manifest Summary</h3>
 
                                     <div className="space-y-8 mb-10 max-h-[500px] overflow-y-auto pr-4 custom-scrollbar">

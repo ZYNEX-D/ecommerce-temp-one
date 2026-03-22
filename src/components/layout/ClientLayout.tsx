@@ -8,7 +8,6 @@ import { useEffect } from "react";
 import { useSettingsStore } from "@/store/settingsStore";
 
 import { AuthProvider } from "./AuthProvider";
-import { Toaster } from "sonner";
 
 export function ClientLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
@@ -21,7 +20,6 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
 
     return (
         <AuthProvider>
-            <Toaster position="top-right" richColors />
             {isAdmin ? (
                 <>{children}</>
             ) : (

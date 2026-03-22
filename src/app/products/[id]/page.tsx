@@ -2,7 +2,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { toast } from "sonner";
+import { alerts } from "@/lib/alerts";
 import { ArrowLeft, ShoppingCart, ShieldCheck, Truck, RotateCcw, CheckCircle2, Loader2, Box } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -24,7 +24,7 @@ export default function ProductDetail() {
                 setProduct(data);
             } catch (error) {
                 console.error("Failed to fetch product:", error);
-                toast.error("Failed to load product details.");
+                alerts.error("Failed to load product details.");
             } finally {
                 setLoading(false);
             }
@@ -69,7 +69,7 @@ export default function ProductDetail() {
                 <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="relative aspect-square rounded-[4rem] overflow-hidden bg-white border border-surface-200 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.1)] group"
+                    className="relative aspect-square rounded-2xl overflow-hidden bg-white border border-surface-200 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.1)] group"
                 >
                     <Image
                         src={product.image}
@@ -84,27 +84,27 @@ export default function ProductDetail() {
                 <div className="space-y-12">
                     <div className="space-y-6">
                         <div className="flex items-center gap-4">
-                            <span className="bg-surface-950 text-white px-5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-lg">
+                            <span className="bg-surface-950 text-white px-5 py-1.5 rounded-md text-[10px] font-black uppercase tracking-[0.2em] shadow-lg">
                                 {product.category?.name?.toUpperCase() || 'GENERAL'}
                             </span>
-                            <span className="flex items-center gap-1.5 text-emerald-600 text-[10px] font-black uppercase tracking-[0.2em] bg-emerald-50 px-4 py-1.5 rounded-full border border-emerald-100">
+                            <span className="flex items-center gap-1.5 text-emerald-600 text-[10px] font-black uppercase tracking-[0.2em] bg-emerald-50 px-4 py-1.5 rounded-lg border border-emerald-100">
                                 <CheckCircle2 size={12} />
                                 Certified In Stock
                             </span>
                         </div>
-                        <h1 className="text-6xl md:text-8xl font-black font-outfit text-surface-950 uppercase tracking-tighter leading-[0.9] mb-4">
+                        <h1 className="text-3xl md:text-5xl font-black font-outfit text-surface-950 uppercase tracking-tighter leading-[0.9] mb-4">
                             {product.name}
                         </h1>
                         <div className="flex items-center gap-4">
                             <div className="text-[10px] font-black text-surface-400 uppercase tracking-widest bg-surface-100 px-3 py-1 rounded-md">Serial: {product.id.substring(0, 12).toUpperCase()}</div>
                             <div className="h-4 w-px bg-surface-200" />
-                            <div className="text-[10px] font-black text-brand-600 uppercase tracking-widest">Apex Genuine Component</div>
+                            <div className="text-[10px] font-black text-brand-600 uppercase tracking-widest">Genuine Component</div>
                         </div>
                     </div>
 
                     <div className="space-y-8">
                         <div className="flex items-baseline gap-2">
-                            <PriceDisplay amount={product.price} className="text-6xl font-black text-surface-950 font-outfit tracking-tighter" />
+                            <PriceDisplay amount={product.price} className="text-4xl font-black text-surface-950 font-outfit tracking-tighter" />
                             <span className="text-surface-400 font-bold text-sm uppercase">Inc. VAT</span>
                         </div>
                         <p className="text-surface-500 font-medium text-xl leading-relaxed max-w-xl italic">
@@ -116,29 +116,40 @@ export default function ProductDetail() {
                         <button
                             onClick={() => {
                                 addItem(product);
-                                toast.success(`${product.name} added to cart!`, {
-                                    icon: <ShoppingCart size={16} />
-                                });
+                                alerts.toast(`${product.name} added to cart!`);
                             }}
                             className="apex-button py-6 text-base"
                         >
                             <ShoppingCart size={24} />
-                            ADD TO APEX CART
+                            ADD TO CART
                         </button>
-                        <button className="bg-white border-2 border-surface-200 hover:border-surface-950 text-surface-950 px-8 py-6 rounded-2xl font-black transition-all uppercase tracking-widest text-xs flex items-center justify-center gap-2 hover:bg-surface-50 shadow-sm active:scale-95">
-                            Technical Data Sheet
+                        <button className="bg-surface-950 border-2 border-surface-200 hover:border-surface-950 text-white px-8 py-6 rounded-xl font-black transition-all uppercase tracking-widest text-xs flex items-center justify-center gap-2 hover:bg-surface-50 shadow-sm active:scale-95">
+                            <ShoppingCart size={24} />
+                            Buy Now
                         </button>
                     </div>
 
                     {/* Features/Info */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-12 border-t border-surface-200">
                         {[
-                            { icon: ShieldCheck, title: "2-YEAR", sub: "FULL WARRANTY" },
-                            { icon: Truck, title: "EXPRESS", sub: "LOGISTICS" },
-                            { icon: RotateCcw, title: "30-DAY", sub: "EASY RETURNS" },
+                            { 
+                                icon: ShieldCheck, 
+                                title: product.warranty?.split(' ')[0] || "2-YEAR", 
+                                sub: product.warranty?.split(' ').slice(1).join(' ') || "FULL WARRANTY" 
+                            },
+                            { 
+                                icon: Truck, 
+                                title: product.delivery?.split(' ')[0] || "EXPRESS", 
+                                sub: product.delivery?.split(' ').slice(1).join(' ') || "LOGISTICS" 
+                            },
+                            { 
+                                icon: RotateCcw, 
+                                title: product.returns?.split(' ')[0] || "30-DAY", 
+                                sub: product.returns?.split(' ').slice(1).join(' ') || "EASY RETURNS" 
+                            },
                         ].map((item, idx) => (
                             <div key={idx} className="flex flex-col gap-4">
-                                <div className="w-12 h-12 bg-surface-950 text-white rounded-2xl flex items-center justify-center shadow-lg">
+                                <div className="w-12 h-12 bg-surface-950 text-white rounded-xl flex items-center justify-center shadow-lg">
                                     <item.icon size={22} />
                                 </div>
                                 <div>
@@ -148,6 +159,21 @@ export default function ProductDetail() {
                             </div>
                         ))}
                     </div>
+
+                    {/* Terms & Conditions Section */}
+                    {product.terms && (
+                        <div className="pt-12 mt-12 border-t border-surface-200">
+                            <h3 className="text-xs font-black text-brand-600 uppercase tracking-[0.3em] mb-6 flex items-center gap-2">
+                                <ShieldCheck size={14} />
+                                Terms & Conditions
+                            </h3>
+                            <div className="bg-white p-8 rounded-xl border border-surface-200 shadow-sm">
+                                <p className="text-surface-500 font-medium text-sm leading-loose whitespace-pre-wrap italic">
+                                    {product.terms}
+                                </p>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

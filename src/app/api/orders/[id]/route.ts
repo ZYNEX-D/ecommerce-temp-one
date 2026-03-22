@@ -1,52 +1,62 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { auth } from '@/auth';
 
 export async function PATCH(
     request: Request,
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const { id } = await params;
+        const session = await auth();
+        if (!session?.user) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
         const body = await request.json();
         const { status } = body;
+        const { id: orderId } = await params;
 
-        const updatedOrder = await prisma.order.update({
-            where: { id },
-            data: { status },
-        });
-
-        return NextResponse.json(updatedOrder);
-    } catch (error) {
-        console.error('API Error:', error);
-        return NextResponse.json({ error: 'Failed to update order status' }, { status: 500 });
-    }
-}
-
-export async function GET(
-    request: Request,
-    { params }: { params: Promise<{ id: string }> }
-) {
-    try {
-        const { id } = await params;
+        // Fetch order to verify ownership and current status
         const order = await prisma.order.findUnique({
-            where: { id },
-            include: {
-                orderItems: {
-                    include: {
-                        product: true
-                    }
-                },
-                user: true
-            }
+            where: { id: orderId },
         });
 
         if (!order) {
             return NextResponse.json({ error: 'Order not found' }, { status: 404 });
         }
 
-        return NextResponse.json(order);
-    } catch (error) {
-        console.error('API Error:', error);
-        return NextResponse.json({ error: 'Failed to fetch order' }, { status: 500 });
+        // Only allow user to modify their own orders, unless they are an ADMIN
+        const userRole = (session.user as any).role;
+        const currentUserId = (session.user as any).id;
+
+        if (userRole !== 'ADMIN' && order.userId !== currentUserId) {
+            return NextResponse.json({ 
+                error: 'Forbidden', 
+                details: 'You do not have permission to modify this transaction sequence.' 
+            }, { status: 403 });
+        }
+
+        // Logic for CANCELLING or REQUESTING CANCELLATION
+        if (status === 'CANCELLED') {
+            if (order.status !== 'PENDING') {
+                return NextResponse.json({ error: 'Only pending orders can be directly cancelled.' }, { status: 400 });
+            }
+        } else if (status === 'CANCELLATION_REQUESTED') {
+            if (['SHIPPED', 'DELIVERED', 'CANCELLED'].includes(order.status)) {
+                return NextResponse.json({ error: 'Cannot request cancellation for this order status.' }, { status: 400 });
+            }
+        } else {
+            return NextResponse.json({ error: 'Invalid status update' }, { status: 400 });
+        }
+
+        const updatedOrder = await prisma.order.update({
+            where: { id: orderId },
+            data: { status } as any,
+        });
+
+        return NextResponse.json(updatedOrder);
+    } catch (error: any) {
+        console.error('Order Update Error:', error);
+        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
 }

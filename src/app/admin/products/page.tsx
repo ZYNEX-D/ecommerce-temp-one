@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Edit2, Trash2, Search, X, Save, Loader2, Globe, Box, Tag, DollarSign, Image as ImageIcon } from "lucide-react";
 import Image from "next/image";
 import { useState, useEffect } from "react";
+import { alerts } from "@/lib/alerts";
 
 const m = motion as any;
 
@@ -13,6 +14,7 @@ export default function AdminProducts() {
     const [categories, setCategories] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
+    const [isIdling, setIsIdling] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingProduct, setEditingProduct] = useState<any>(null);
     const [formData, setFormData] = useState({
@@ -25,7 +27,11 @@ export default function AdminProducts() {
         sku: "",
         categoryId: "",
         metaTitle: "",
-        metaDescription: ""
+        metaDescription: "",
+        warranty: "",
+        delivery: "",
+        returns: "",
+        terms: ""
     });
 
     const fetchData = async () => {
@@ -40,6 +46,7 @@ export default function AdminProducts() {
             if (Array.isArray(catData)) setCategories(catData);
         } catch (error) {
             console.error("Failed to fetch data:", error);
+            alerts.error("Sync Failure", "Could not retrieve the latest inventory records.");
         } finally {
             setLoading(false);
         }
@@ -62,7 +69,11 @@ export default function AdminProducts() {
                 sku: product.sku || "",
                 categoryId: product.categoryId,
                 metaTitle: product.metaTitle || "",
-                metaDescription: product.metaDescription || ""
+                metaDescription: product.metaDescription || "",
+                warranty: product.warranty || "",
+                delivery: product.delivery || "",
+                returns: product.returns || "",
+                terms: product.terms || ""
             });
         } else {
             setEditingProduct(null);
@@ -76,7 +87,11 @@ export default function AdminProducts() {
                 sku: "",
                 categoryId: categories[0]?.id || "",
                 metaTitle: "",
-                metaDescription: ""
+                metaDescription: "",
+                warranty: "",
+                delivery: "",
+                returns: "",
+                terms: ""
             });
         }
         setIsModalOpen(true);
@@ -84,6 +99,7 @@ export default function AdminProducts() {
 
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
+        setIsIdling(true);
         const method = editingProduct ? 'PUT' : 'POST';
         const url = editingProduct ? `/api/products/${editingProduct.id}` : '/api/products';
 
@@ -93,24 +109,45 @@ export default function AdminProducts() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData),
             });
+            
             if (res.ok) {
+                alerts.success(
+                    editingProduct ? "Product Updated" : "Product Deployed",
+                    `The component "${formData.name}" has been successfully updated in the inventory.`
+                );
                 setIsModalOpen(false);
                 fetchData();
+            } else {
+                const data = await res.json();
+                alerts.error("Deployment Failed", data.error || "Could not save the product record.");
             }
         } catch (error) {
             console.error("Failed to save product:", error);
+            alerts.error("Terminal Error", "The connection to the inventory server was lost.");
+        } finally {
+            setIsIdling(false);
         }
     };
 
     const handleDelete = async (id: string) => {
-        if (!confirm("Are you sure you want to delete this product?")) return;
+        const confirmed = await alerts.confirm(
+            "Decommission Part?",
+            "This will permanently erase all engineering data and stock records for this component."
+        );
+        
+        if (!confirmed) return;
+
         try {
             const res = await fetch(`/api/products/${id}`, { method: 'DELETE' });
             if (res.ok) {
                 setProducts(prev => prev.filter(p => p.id !== id));
+                alerts.success("Part Decommissioned", "The record has been purged from the global inventory.");
+            } else {
+                alerts.error("Purge Failed", "Could not execute the decommissioning sequence.");
             }
         } catch (error) {
             console.error("Failed to delete product:", error);
+            alerts.error("System Failure", "The deletion sequence was interrupted.");
         }
     };
 
@@ -377,6 +414,53 @@ export default function AdminProducts() {
                                                 placeholder="Technical details and fitment info..."
                                             />
                                         </div>
+
+                                        <div className="pt-6 border-t border-surface-100">
+                                            <h3 className="text-xs font-black text-brand-600 uppercase tracking-widest mb-4">Service & Logistics</h3>
+                                            <div className="grid grid-cols-1 gap-4">
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] font-black text-surface-500 uppercase tracking-widest pl-1">Warranty Label</label>
+                                                    <input 
+                                                        value={formData.warranty}
+                                                        onChange={e => setFormData({ ...formData, warranty: e.target.value })}
+                                                        className="w-full bg-surface-50 border border-surface-200 rounded-xl py-3 px-4 font-bold text-surface-950 focus:border-brand-500 outline-none"
+                                                        placeholder="e.g. 2-YEAR FULL WARRANTY"
+                                                    />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] font-black text-surface-500 uppercase tracking-widest pl-1">Logistics Label</label>
+                                                    <input 
+                                                        value={formData.delivery}
+                                                        onChange={e => setFormData({ ...formData, delivery: e.target.value })}
+                                                        className="w-full bg-surface-50 border border-surface-200 rounded-xl py-3 px-4 font-bold text-surface-950 focus:border-brand-500 outline-none"
+                                                        placeholder="e.g. EXPRESS LOGISTICS"
+                                                    />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] font-black text-surface-500 uppercase tracking-widest pl-1">Returns Label</label>
+                                                    <input 
+                                                        value={formData.returns}
+                                                        onChange={e => setFormData({ ...formData, returns: e.target.value })}
+                                                        className="w-full bg-surface-50 border border-surface-200 rounded-xl py-3 px-4 font-bold text-surface-950 focus:border-brand-500 outline-none"
+                                                        placeholder="e.g. 30-DAY EASY RETURNS"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="pt-6 border-t border-surface-100">
+                                            <h3 className="text-xs font-black text-brand-600 uppercase tracking-widest mb-4">Compliance</h3>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-surface-500 uppercase tracking-widest pl-1">Product-Specific Terms</label>
+                                                <textarea 
+                                                    rows={3}
+                                                    value={formData.terms}
+                                                    onChange={e => setFormData({ ...formData, terms: e.target.value })}
+                                                    className="w-full bg-surface-50 border border-surface-200 rounded-xl py-3 px-4 font-bold text-surface-950 focus:border-brand-500 outline-none resize-none"
+                                                    placeholder="Special terms and conditions for this part..."
+                                                />
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -390,10 +474,15 @@ export default function AdminProducts() {
                                     </button>
                                     <button
                                         type="submit"
-                                        className="flex items-center gap-2 px-12 py-4 bg-brand-600 hover:bg-brand-700 text-white font-black rounded-2xl transition-all shadow-xl shadow-brand-600/20 active:scale-95 uppercase tracking-widest text-sm"
+                                        disabled={isIdling}
+                                        className="flex items-center gap-2 px-12 py-4 bg-brand-600 hover:bg-brand-700 disabled:bg-surface-300 text-white font-black rounded-2xl transition-all shadow-xl shadow-brand-600/20 active:scale-95 uppercase tracking-widest text-sm"
                                     >
-                                        <Save size={20} />
-                                        <span>DEPLOY CHANGES</span>
+                                        {isIdling ? (
+                                            <Loader2 size={20} className="animate-spin" />
+                                        ) : (
+                                            <Save size={20} />
+                                        )}
+                                        <span>{isIdling ? 'DEPLOYING...' : 'DEPLOY CHANGES'}</span>
                                     </button>
                                 </div>
                             </form>

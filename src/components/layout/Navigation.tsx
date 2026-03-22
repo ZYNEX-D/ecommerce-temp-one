@@ -30,7 +30,7 @@ export function Navigation() {
                     <m.div
                         whileHover={{ rotate: 180, scale: 1.1 }}
                         transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                        className="w-12 h-12 bg-surface-950 rounded-2xl flex items-center justify-center text-white shadow-lg group-hover:bg-brand-600 transition-colors duration-500"
+                        className="w-12 h-12 bg-surface-950 rounded-xl flex items-center justify-center text-white shadow-lg group-hover:bg-brand-600 transition-colors duration-500"
                     >
                         <Hexagon size={24} />
                     </m.div>
@@ -41,7 +41,7 @@ export function Navigation() {
 
                     {/* Desktop Nav */}
                     <nav className="hidden lg:flex items-center gap-12">
-                        {['Catalog', 'Categories', 'Performance', 'Logistics'].map((item) => (
+                        {['Catalog', 'Categories', 'About', 'Contact'].map((item) => (
                             <Link 
                                 key={item} 
                                 href={`/${item.toLowerCase()}`} 
@@ -72,7 +72,7 @@ export function Navigation() {
                                     </Link>
                                     <button
                                         onClick={() => signOut()}
-                                        className="w-10 h-10 flex items-center justify-center text-surface-300 hover:text-red-600 transition-all hover:bg-red-50 rounded-xl"
+                                        className="w-10 h-10 flex items-center justify-center text-surface-300 hover:text-red-600 transition-all hover:bg-red-50 rounded-lg"
                                         title="Log Out"
                                     >
                                         <LogOut size={20} />
@@ -96,7 +96,7 @@ export function Navigation() {
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={() => setCartOpen(true)}
-                            className="relative flex items-center gap-3 bg-white px-5 py-3 rounded-2xl border border-surface-200 group hover:border-brand-600 transition-all shadow-sm"
+                            className="relative flex items-center gap-3 bg-white px-5 py-3 rounded-xl border border-surface-200 group hover:border-brand-600 transition-all shadow-sm"
                         >
                             <ShoppingCart size={22} className="text-surface-950 group-hover:text-brand-600 transition-colors" />
                             <div className="hidden sm:flex flex-col items-start leading-none gap-1">
@@ -134,7 +134,7 @@ export function Navigation() {
                         className="fixed inset-0 z-40 bg-white pt-32 px-8 md:hidden"
                     >
                         <nav className="flex flex-col gap-10">
-                            {['Catalog', 'Categories', 'Performance', 'Logistics', 'Profile'].map((item) => (
+                            {['Catalog', 'Categories', 'About', 'Contact', 'Profile'].map((item) => (
                                 <Link 
                                     key={item} 
                                     href={`/${item.toLowerCase()}`} 
@@ -147,7 +147,7 @@ export function Navigation() {
                             {sessionStatus === "authenticated" && (
                                 <button 
                                     onClick={() => signOut()}
-                                    className="text-left text-red-600 text-3xl font-black uppercase tracking-widest mt-12 bg-red-50 p-6 rounded-[2rem]"
+                                    className="text-left text-red-600 text-3xl font-black uppercase tracking-widest mt-12 bg-red-50 p-6 rounded-3xl"
                                 >
                                     DISCONNECT
                                 </button>

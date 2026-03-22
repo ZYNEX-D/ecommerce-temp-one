@@ -5,11 +5,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Edit2, Trash2, Search, X, Save, Loader2, Globe, Tag, Image as ImageIcon } from "lucide-react";
 import Image from "next/image";
 import { useState, useEffect } from "react";
+import { alerts } from "@/lib/alerts";
 
 export default function AdminCategories() {
     const [categories, setCategories] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
+    const [isIdling, setIsIdling] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingCategory, setEditingCategory] = useState<any>(null);
     const [formData, setFormData] = useState({
@@ -29,6 +31,7 @@ export default function AdminCategories() {
             setCategories(data);
         } catch (error) {
             console.error("Failed to fetch categories:", error);
+            alerts.error("Data Fetch Failure", "Could not synchronize category records from the database.");
         } finally {
             setLoading(false);
         }
@@ -65,6 +68,7 @@ export default function AdminCategories() {
 
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
+        setIsIdling(true);
         const method = editingCategory ? 'PUT' : 'POST';
         const url = editingCategory ? `/api/categories/${editingCategory.id}` : '/api/categories';
 
@@ -74,24 +78,49 @@ export default function AdminCategories() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData),
             });
+            const data = await res.json();
+
             if (res.ok) {
+                alerts.success(
+                    editingCategory ? "Category Updated" : "Category Created",
+                    `The component classification "${formData.name}" has been successfully recorded.`
+                );
                 setIsModalOpen(false);
                 fetchCategories();
+            } else {
+                alerts.error(
+                    "Operation Failed",
+                    data.details || data.error || "An unexpected error occurred while processing the record."
+                );
             }
         } catch (error) {
             console.error("Failed to save category:", error);
+            alerts.error("Connection Error", "The terminal lost connection to the core database services.");
+        } finally {
+            setIsIdling(false);
         }
     };
 
     const handleDelete = async (id: string) => {
-        if (!confirm("Are you sure? This will not delete products in this category, but they will become uncategorized.")) return;
+        const confirmed = await alerts.confirm(
+            "Terminate Category?",
+            "This action will de-link all associated products. The engineering metadata will be permanently erased."
+        );
+        
+        if (!confirmed) return;
+
         try {
             const res = await fetch(`/api/categories/${id}`, { method: 'DELETE' });
             if (res.ok) {
                 setCategories(prev => prev.filter(c => c.id !== id));
+                alerts.success("Record Terminated", "The category has been successfully purged from the system.");
+            } else {
+                const data = await res.json();
+                alerts.error("Deletion Failed", data.error || "Could not execute the termination sequence.");
             }
         } catch (error) {
             console.error("Failed to delete category:", error);
+            alerts.error("System Error", "The deletion sequence was interrupted by a network failure.");
         }
     };
 
@@ -322,10 +351,15 @@ export default function AdminCategories() {
                                     </button>
                                     <button
                                         type="submit"
-                                        className="flex items-center gap-2 px-12 py-4 bg-brand-600 hover:bg-brand-700 text-white font-black rounded-2xl transition-all shadow-xl shadow-brand-600/20 active:scale-95 uppercase tracking-widest text-sm"
+                                        disabled={isIdling}
+                                        className="flex items-center gap-2 px-12 py-4 bg-brand-600 hover:bg-brand-700 disabled:bg-surface-300 text-white font-black rounded-2xl transition-all shadow-xl shadow-brand-600/20 active:scale-95 uppercase tracking-widest text-sm"
                                     >
-                                        <Save size={20} />
-                                        <span>SAVE CATEGORY</span>
+                                        {isIdling ? (
+                                            <Loader2 size={20} className="animate-spin" />
+                                        ) : (
+                                            <Save size={20} />
+                                        )}
+                                        <span>{isIdling ? 'SAVING...' : 'SAVE CATEGORY'}</span>
                                     </button>
                                 </div>
                             </form>

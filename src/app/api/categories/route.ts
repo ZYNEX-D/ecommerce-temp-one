@@ -34,8 +34,16 @@ export async function POST(request: Request) {
             },
         });
         return NextResponse.json(category, { status: 201 });
-    } catch (error) {
-        console.error('API Error:', error);
-        return NextResponse.json({ error: 'Failed to create category' }, { status: 500 });
+    } catch (error: any) {
+        console.error('API Error Details:', {
+            message: error.message,
+            stack: error.stack,
+            code: error.code,
+            meta: error.meta
+        });
+        return NextResponse.json({ 
+            error: 'Failed to create category',
+            details: error.message 
+        }, { status: 500 });
     }
 }

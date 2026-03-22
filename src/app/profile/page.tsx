@@ -3,7 +3,7 @@
 
 import { motion } from "framer-motion";
 import { useSession, signOut } from "next-auth/react";
-import { toast } from "sonner";
+import { alerts } from "@/lib/alerts";
 import { User, Package, MapPin, Clock, ArrowRight, LogOut, Loader2, ChevronRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -46,12 +46,43 @@ export default function ProfilePage() {
         if (user?.id) fetchUserOrders();
     }, [user?.id]);
 
-    const handleSignOut = () => {
-        toast.promise(signOut({ callbackUrl: "/" }), {
-            loading: "Logging out of security session...",
-            success: "Session terminated successfully.",
-            error: "Failed to logout. Please try again."
-        });
+    const handleSignOut = async () => {
+        const confirmed = await alerts.confirm("Terminate Session", "Are you sure you want to log out of your security session?");
+        if (confirmed) {
+            await signOut({ callbackUrl: "/" });
+        }
+    };
+
+    const handleOrderAction = async (orderId: string, action: 'CANCELLED' | 'CANCELLATION_REQUESTED') => {
+        const title = action === 'CANCELLED' ? "Cancel Acquisition" : "Request Interruption";
+        const message = action === 'CANCELLED' ? 
+            "Are you sure you want to immediately terminate this order sequence?" : 
+            "This order is already being processed. Would you like to submit a formal cancellation request to our logistics team?";
+        
+        const confirmed = await alerts.confirm(title, message);
+        if (!confirmed) return;
+
+        try {
+            const res = await fetch(`/api/orders/${orderId}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: action }),
+            });
+
+            if (res.ok) {
+                alerts.success("Protocol Updated", action === 'CANCELLED' ? "Order successfully terminated." : "Cancellation request transmitted.");
+                // Refresh orders
+                const updatedRes = await fetch(`/api/orders?userId=${user.id}`);
+                const data = await updatedRes.json();
+                setOrders(data);
+            } else {
+                const data = await res.json();
+                alerts.error("Action Denied", data.error || "Execution failed.");
+            }
+        } catch (error) {
+            console.error("Failed to update order:", error);
+            alerts.error("Terminal Fault", "Connection to the Sales Ledger was lost.");
+        }
     };
 
     if (status === "loading" || loading) {
@@ -78,26 +109,26 @@ export default function ProfilePage() {
                             <m.div
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                className="bg-white rounded-[3rem] p-10 border border-surface-200 shadow-xl relative overflow-hidden"
+                                className="bg-white rounded-2xl p-10 border border-surface-200 shadow-xl relative overflow-hidden"
                             >
                                 <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-brand-600 via-brand-500 to-brand-600" />
                                 
                                 <div className="flex flex-col items-center text-center mb-10">
-                                    <div className="w-32 h-32 bg-surface-950 rounded-[2.5rem] flex items-center justify-center text-white font-black text-5xl mb-6 relative shadow-2xl group transition-transform hover:scale-105 duration-500">
+                                    <div className="w-32 h-32 bg-surface-950 rounded-xl flex items-center justify-center text-white font-black text-5xl mb-6 relative shadow-2xl group transition-transform hover:scale-105 duration-500">
                                         {user.name ? user.name[0].toUpperCase() : "U"}
                                         <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-emerald-500 border-[6px] border-white rounded-full shadow-lg"></div>
-                                        <div className="absolute inset-0 rounded-[2.5rem] bg-brand-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center text-6xl">
+                                        <div className="absolute inset-0 rounded-xl bg-brand-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center text-6xl">
                                             {user.name ? user.name[0].toUpperCase() : "U"}
                                         </div>
                                     </div>
                                     <h1 className="text-3xl font-black text-surface-950 uppercase tracking-tighter leading-none mb-2 font-outfit">{user.name}</h1>
-                                    <div className="text-brand-600 font-black text-[10px] uppercase tracking-[0.2em] bg-brand-50 px-4 py-1 rounded-full mb-4">Apex Premium Member</div>
+                                    <div className="text-brand-600 font-black text-[10px] uppercase tracking-[0.2em] bg-brand-50 px-4 py-1 rounded-lg mb-4">Apex Premium Member</div>
                                     <p className="text-surface-400 font-bold lowercase tracking-tight italic">{user.email}</p>
                                 </div>
 
                                 <div className="space-y-4 pt-8 border-t border-surface-100">
-                                    <div className="flex items-center gap-4 p-5 bg-surface-50 rounded-2xl border border-surface-100 transition-all hover:border-surface-200 group">
-                                        <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center border border-surface-200 shadow-sm group-hover:text-brand-600 group-hover:rotate-12 transition-all">
+                                    <div className="flex items-center gap-4 p-5 bg-surface-50 rounded-xl border border-surface-100 transition-all hover:border-surface-200 group">
+                                        <div className="w-12 h-12 rounded-lg bg-white flex items-center justify-center border border-surface-200 shadow-sm group-hover:text-brand-600 group-hover:rotate-12 transition-all">
                                             <Package size={20} />
                                         </div>
                                         <div className="flex-1">
@@ -105,22 +136,22 @@ export default function ProfilePage() {
                                             <div className="font-black text-xl text-surface-950 font-outfit">{orders.length} Units</div>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-4 p-5 text-surface-400 px-8">
+                                    {/* <div className="flex items-center gap-4 p-5 text-surface-400 px-8">
                                         <Clock size={16} />
                                         <div className="text-[10px] font-black uppercase tracking-widest flex-1">Registration Date</div>
                                         <div className="text-[10px] font-black text-surface-950">MAR 2024</div>
-                                    </div>
+                                    </div> */}
                                 </div>
 
                                 <button
                                     onClick={handleSignOut}
-                                    className="w-full mt-10 py-5 bg-surface-50 hover:bg-black hover:text-white text-surface-950 font-black rounded-2xl transition-all flex items-center justify-center gap-3 uppercase tracking-[0.2em] text-[10px] border border-surface-200 group active:scale-95 shadow-sm"
+                                    className="w-full mt-10 py-5 bg-surface-50 hover:bg-black hover:text-white text-surface-950 font-black rounded-xl transition-all flex items-center justify-center gap-3 uppercase tracking-[0.2em] text-[10px] border border-surface-200 group active:scale-95 shadow-sm"
                                 >
-                                    <LogOut size={16} className="group-hover:translate-x-1 transition-transform" /> TERMINATE SESSION
+                                    <LogOut size={16} className="group-hover:translate-x-1 transition-transform" /> LOGOUT
                                 </button>
                             </m.div>
 
-                            <div className="bg-surface-950 rounded-[3rem] p-10 text-white relative overflow-hidden group shadow-2xl">
+                            <div className="bg-surface-950 rounded-2xl p-10 text-white relative overflow-hidden group shadow-2xl">
                                 <div className="absolute -top-10 -right-10 p-12 opacity-5 transform rotate-12 group-hover:scale-125 transition-transform duration-1000">
                                     <Package size={240} />
                                 </div>
@@ -155,10 +186,10 @@ export default function ProfilePage() {
                                 <m.div
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    className="bg-white rounded-[3rem] p-24 border border-surface-200 shadow-sm text-center flex flex-col items-center group relative overflow-hidden"
+                                     className="bg-white rounded-2xl p-24 border border-surface-200 shadow-sm text-center flex flex-col items-center group relative overflow-hidden"
                                 >
                                     <div className="absolute inset-0 bg-surface-50 opacity-0 group-hover:opacity-50 transition-opacity duration-1000" />
-                                    <div className="w-32 h-32 bg-surface-50 rounded-[2.5rem] flex items-center justify-center text-surface-200 mb-10 border border-surface-100 shadow-inner group-hover:scale-110 transition-transform duration-700">
+                                     <div className="w-32 h-32 bg-surface-50 rounded-xl flex items-center justify-center text-surface-200 mb-10 border border-surface-100 shadow-inner group-hover:scale-110 transition-transform duration-700">
                                         <Package size={56} />
                                     </div>
                                     <h3 className="text-3xl font-black text-surface-950 uppercase mb-4 tracking-tighter font-outfit">No Transactions Found</h3>
@@ -175,7 +206,7 @@ export default function ProfilePage() {
                                             initial={{ opacity: 0, y: 30 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ delay: idx * 0.1 }}
-                                            className="bg-white rounded-[2.5rem] p-10 border border-surface-200 shadow-sm hover:shadow-2xl hover:border-brand-600/20 transition-all duration-500 group relative"
+                                             className="bg-white rounded-2xl p-10 border border-surface-200 shadow-sm hover:shadow-2xl hover:border-brand-600/20 transition-all duration-500 group relative"
                                         >
                                             <div className="flex flex-col md:flex-row md:items-start justify-between gap-10 mb-10">
                                                 <div className="space-y-1">
@@ -210,7 +241,7 @@ export default function ProfilePage() {
                                                             <m.div 
                                                                 whileHover={{ scale: 1.2, zIndex: 10, rotate: 6 }}
                                                                 key={i} 
-                                                                className="relative w-14 h-14 rounded-2xl border-[3px] border-white overflow-hidden bg-white shadow-xl cursor-help" 
+                                                                className="relative w-14 h-14 rounded-xl border-[3px] border-white overflow-hidden bg-white shadow-xl cursor-help" 
                                                                 title={item.product?.name}
                                                             >
                                                                 <img src={item.product?.image} className="w-full h-full object-cover" alt={item.product?.name} />
@@ -224,7 +255,23 @@ export default function ProfilePage() {
                                                     </div>
                                                 </div>
                                                 <div className="flex justify-end gap-4">
-                                                    <button className="flex-1 sm:flex-none px-8 py-4 bg-surface-50 hover:bg-surface-950 hover:text-white rounded-2xl text-surface-950 font-black text-[10px] uppercase tracking-[0.3em] transition-all flex items-center justify-center gap-3 border border-surface-200 group/btn active:scale-95">
+                                                    {order.status === 'PENDING' && (
+                                                        <button 
+                                                            onClick={() => handleOrderAction(order.id, 'CANCELLED')}
+                                                            className="flex-1 sm:flex-none px-8 py-4 bg-red-50 hover:bg-red-600 hover:text-white rounded-xl text-red-600 font-black text-[10px] uppercase tracking-[0.3em] transition-all flex items-center justify-center gap-3 border border-red-100 active:scale-95"
+                                                        >
+                                                            CANCEL ORDER
+                                                        </button>
+                                                    )}
+                                                    {(order.status === 'PROCESSING' || order.status === 'SHIPPED') && (
+                                                        <button 
+                                                            onClick={() => handleOrderAction(order.id, 'CANCELLATION_REQUESTED')}
+                                                            className="flex-1 sm:flex-none px-8 py-4 bg-surface-50 hover:bg-surface-950 hover:text-white rounded-xl text-surface-950 font-black text-[10px] uppercase tracking-[0.3em] transition-all flex items-center justify-center gap-3 border border-surface-200 active:scale-95"
+                                                        >
+                                                            REQUEST CANCELLATION
+                                                        </button>
+                                                    )}
+                                                    <button className="flex-1 sm:flex-none px-8 py-4 bg-surface-50 hover:bg-surface-950 hover:text-white rounded-xl text-surface-950 font-black text-[10px] uppercase tracking-[0.3em] transition-all flex items-center justify-center gap-3 border border-surface-200 group/btn active:scale-95">
                                                         MANIFEST DETAILS <ArrowRight size={16} className="group-hover/btn:translate-x-1 transition-transform" />
                                                     </button>
                                                 </div>
