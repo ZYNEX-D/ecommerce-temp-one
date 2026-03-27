@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { signOut } from "next-auth/react";
+import { alerts } from "@/lib/alerts";
 
 const m = motion as any;
 
@@ -71,14 +73,26 @@ export function AdminSidebar() {
             </nav>
 
             {/* Footer */}
-            <div className="p-4 border-t border-surface-200">
+            <div className="p-4 border-t border-surface-200 flex flex-col gap-2">
                 <Link
                     href="/"
                     className="flex items-center gap-3 px-4 py-3 rounded-xl text-surface-600 font-bold hover:text-brand-600 hover:bg-brand-50 transition-colors"
                 >
-                    <LogOut size={20} />
+                    <Hexagon size={20} />
                     Exit to Frontend
                 </Link>
+                <button
+                    onClick={async () => {
+                        const confirmed = await alerts.confirm("Sign Out", "Are you sure you want to log out of your admin session?");
+                        if (confirmed) {
+                            await signOut({ callbackUrl: "/" });
+                        }
+                    }}
+                    className="flex items-center gap-3 px-4 py-3 w-full text-left rounded-xl text-red-600 font-bold hover:bg-red-50 transition-colors"
+                >
+                    <LogOut size={20} />
+                    Secure Sign Out
+                </button>
             </div>
         </div>
     );

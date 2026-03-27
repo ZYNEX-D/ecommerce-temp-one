@@ -72,10 +72,11 @@ export function Navigation() {
                                     </Link>
                                     <button
                                         onClick={() => signOut()}
-                                        className="w-10 h-10 flex items-center justify-center text-surface-300 hover:text-red-600 transition-all hover:bg-red-50 rounded-lg"
+                                        className="flex items-center gap-2 px-3 py-2 text-surface-400 hover:text-red-600 transition-all hover:bg-red-50 rounded-lg group"
                                         title="Log Out"
                                     >
-                                        <LogOut size={20} />
+                                        <LogOut size={18} className="group-hover:-translate-x-0.5 transition-transform" />
+                                        <span className="text-[10px] font-black uppercase tracking-widest leading-none mt-0.5">Logout</span>
                                     </button>
                                 </div>
                             ) : (

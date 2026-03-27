@@ -38,14 +38,14 @@ const products = [
 
 export function Hero() {
     return (
-        <div className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-surface-50 font-outfit">
+        <div className="relative min-h-[90vh] flex flex-col justify-center pt-32 pb-20 overflow-hidden bg-surface-50 font-outfit">
             {/* Clean Background Elements */}
             <div className="absolute inset-0 z-0">
                 <div className="absolute top-1/2 right-0 -translate-y-1/2 w-[800px] h-[800px] bg-brand-50 rounded-full blur-[120px] opacity-40" />
                 <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-surface-100 rounded-full blur-[100px]" />
             </div>
 
-            <div className="container mx-auto px-4 relative z-10 flex flex-col items-center text-center">
+            <div className="container mx-auto px-4 relative z-10 flex flex-col items-center text-center mt-8">
                 <m.div
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
