@@ -6,6 +6,7 @@ import { Plus, Edit2, Trash2, Search, X, Save, Loader2, Globe, Box, Tag, DollarS
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { alerts } from "@/lib/alerts";
+import { CustomSelect, SelectOption } from "@/components/common/CustomSelect";
 
 const m = motion as any;
 
@@ -14,6 +15,7 @@ export default function AdminProducts() {
     const [categories, setCategories] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
+    const [filterCategory, setFilterCategory] = useState("all");
     const [isIdling, setIsIdling] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingProduct, setEditingProduct] = useState<any>(null);
@@ -151,10 +153,19 @@ export default function AdminProducts() {
         }
     };
 
-    const filteredProducts = products.filter(p =>
-        p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.category?.name?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredProducts = products.filter(p => {
+        const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            p.category?.name?.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesCategory = filterCategory === "all" || p.categoryId === filterCategory;
+        return matchesSearch && matchesCategory;
+    });
+
+    const categoryOptions: SelectOption[] = [
+        { value: "all", label: "All Categories" },
+        ...categories.map(c => ({ value: c.id, label: c.name }))
+    ];
+
+    const categoryFormOptions: SelectOption[] = categories.map(c => ({ value: c.id, label: c.name }));
 
     return (
         <div className="max-w-7xl mx-auto space-y-8 font-outfit">
@@ -190,10 +201,13 @@ export default function AdminProducts() {
                 </div>
 
                 <div className="flex gap-3">
-                    <select className="bg-surface-50 border border-surface-200 rounded-2xl py-3 px-6 text-surface-600 font-bold focus:outline-none hover:border-surface-400 cursor-pointer transition-colors">
-                        <option value="all">All Categories</option>
-                        {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                    </select>
+                    <CustomSelect
+                        options={categoryOptions}
+                        value={filterCategory}
+                        onChange={setFilterCategory}
+                        triggerClassName="bg-surface-50 border border-surface-200 rounded-2xl py-3 px-5 text-surface-600 font-bold hover:border-surface-400 min-w-[180px]"
+                        listClassName="top-full"
+                    />
                 </div>
             </div>
 
@@ -352,14 +366,13 @@ export default function AdminProducts() {
 
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-black text-surface-500 uppercase tracking-widest pl-1">Category</label>
-                                            <select
-                                                required
+                                            <CustomSelect
+                                                options={categoryFormOptions}
                                                 value={formData.categoryId}
-                                                onChange={e => setFormData({ ...formData, categoryId: e.target.value })}
-                                                className="w-full bg-surface-50 border border-surface-200 rounded-2xl py-3 px-4 font-bold text-surface-900 focus:border-brand-500 outline-none cursor-pointer"
-                                            >
-                                                {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                                            </select>
+                                                onChange={(val) => setFormData({ ...formData, categoryId: val })}
+                                                triggerClassName="w-full bg-surface-50 border border-surface-200 rounded-2xl py-3 px-4 font-bold text-surface-900 hover:border-brand-500"
+                                                listClassName="top-full"
+                                            />
                                         </div>
 
                                         <div className="space-y-2">

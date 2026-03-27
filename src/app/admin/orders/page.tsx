@@ -4,20 +4,31 @@
 import { motion } from "framer-motion";
 import { Search, Eye, MoreHorizontal, CheckCircle2, Clock, XCircle, Truck, AlertCircle, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { CustomSelect, SelectOption } from "@/components/common/CustomSelect";
 
-// Mock Data
-const initialOrders = [
-    { id: "ORD-8925", customer: "Alex Mercer", email: "a.mercer@citadel.net", date: "2026-03-08", total: 1799.98, status: "Completed", items: 2 },
-    { id: "ORD-8924", customer: "Sarah Kerrigan", email: "ghost@dominion.gov", date: "2026-03-07", total: 4999.99, status: "Processing", items: 1 },
-    { id: "ORD-8923", customer: "David Bowman", email: "dbowman@discovery.space", date: "2026-03-07", total: 899.99, status: "Shipped", items: 1 },
-    { id: "ORD-8922", customer: "Motoko Kusanagi", email: "major@section9.jp", date: "2026-03-06", total: 249.99, status: "Cancelled", items: 1 },
-    { id: "ORD-8921", customer: "Neo", email: "neo@zion.matrix", date: "2026-03-05", total: 1299.99, status: "Completed", items: 1 },
+const STATUS_OPTIONS: SelectOption[] = [
+    { value: "all", label: "Every Status" },
+    { value: "PENDING", label: "Pending" },
+    { value: "PROCESSING", label: "Processing" },
+    { value: "SHIPPED", label: "Shipped" },
+    { value: "DELIVERED", label: "Delivered" },
+    { value: "CANCELLED", label: "Cancelled" },
+];
+
+const INLINE_STATUS_OPTIONS: SelectOption[] = [
+    { value: "PENDING", label: "Pending" },
+    { value: "PROCESSING", label: "Processing" },
+    { value: "SHIPPED", label: "Shipped" },
+    { value: "DELIVERED", label: "Delivered" },
+    { value: "CANCELLED", label: "Cancelled" },
+    { value: "CANCELLATION_REQUESTED", label: "Cancellation Requested" },
 ];
 
 export default function AdminOrders() {
     const [orders, setOrders] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
+    const [filterStatus, setFilterStatus] = useState("all");
 
     const fetchOrders = async () => {
         try {
@@ -43,7 +54,6 @@ export default function AdminOrders() {
                 body: JSON.stringify({ status: newStatus }),
             });
             if (res.ok) {
-                // Optimistic update
                 setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
             }
         } catch (error) {
@@ -51,30 +61,27 @@ export default function AdminOrders() {
         }
     };
 
-    const getStatusIcon = (status: string) => {
-        switch (status) {
+    const getStatusStyle = (status: string) => {
+        switch (status.toUpperCase()) {
             case 'COMPLETED':
-            case 'Completed': return <CheckCircle2 size={14} />;
-            case 'PROCESSING':
-            case 'Processing': return <Clock size={14} />;
-            case 'SHIPPED':
-            case 'Shipped': return <Truck size={14} />;
-            case 'CANCELLED':
-            case 'Cancelled': return <XCircle size={14} />;
-            default: return <AlertCircle size={14} />;
+            case 'DELIVERED': return 'bg-emerald-50 text-emerald-600 border-emerald-200';
+            case 'PROCESSING': return 'bg-amber-50 text-amber-600 border-amber-200';
+            case 'SHIPPED': return 'bg-blue-50 text-blue-600 border-blue-200';
+            case 'CANCELLED': return 'bg-red-50 text-red-600 border-red-200';
+            case 'CANCELLATION_REQUESTED': return 'bg-purple-50 text-purple-600 border-purple-200';
+            default: return 'bg-surface-50 text-surface-500 border-surface-200';
         }
     };
 
-    const getStatusStyle = (status: string) => {
-        switch (status.toUpperCase()) {
-            case 'COMPLETED': return 'bg-emerald-50 text-emerald-600 border-emerald-100';
-            case 'PROCESSING': return 'bg-amber-50 text-amber-600 border-amber-100';
-            case 'SHIPPED': return 'bg-blue-50 text-blue-600 border-blue-100';
-            case 'CANCELLED': return 'bg-red-50 text-red-600 border-red-100';
-            case 'CANCELLATION_REQUESTED': return 'bg-purple-50 text-purple-600 border-purple-100';
-            default: return 'bg-surface-50 text-surface-500 border-surface-100';
-        }
-    };
+    const filteredOrders = orders.filter(order => {
+        const matchesSearch =
+            order.id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            order.shippingFirstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            order.shippingLastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            order.user?.email?.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesStatus = filterStatus === "all" || order.status === filterStatus;
+        return matchesSearch && matchesStatus;
+    });
 
     return (
         <div className="max-w-7xl mx-auto space-y-8 font-outfit">
@@ -101,14 +108,13 @@ export default function AdminOrders() {
                     />
                 </div>
 
-                <div className="flex gap-3">
-                    <select className="bg-surface-50 border border-surface-200 rounded-xl py-3 px-6 text-surface-600 font-bold focus:outline-none hover:border-surface-400 cursor-pointer transition-colors">
-                        <option value="all">Every Status</option>
-                        <option value="completed">Completed</option>
-                        <option value="processing">Processing</option>
-                        <option value="shipped">Shipped</option>
-                    </select>
-                </div>
+                <CustomSelect
+                    options={STATUS_OPTIONS}
+                    value={filterStatus}
+                    onChange={setFilterStatus}
+                    triggerClassName="bg-surface-50 border border-surface-200 rounded-xl py-3 px-5 text-surface-700 font-bold hover:border-surface-400 min-w-[160px]"
+                    listClassName="top-full"
+                />
             </div>
 
             {/* Table */}
@@ -118,7 +124,7 @@ export default function AdminOrders() {
                         <div className="flex items-center justify-center py-24">
                             <Loader2 className="w-10 h-10 text-brand-600 animate-spin" />
                         </div>
-                    ) : orders.length === 0 ? (
+                    ) : filteredOrders.length === 0 ? (
                         <div className="text-center py-24">
                             <p className="text-surface-400 font-black uppercase tracking-widest text-lg">No transactions found.</p>
                         </div>
@@ -135,7 +141,7 @@ export default function AdminOrders() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-surface-100">
-                                {orders.map((order, i) => (
+                                {filteredOrders.map((order, i) => (
                                     <motion.tr
                                         key={order.id}
                                         initial={{ opacity: 0, x: -10 }}
@@ -162,18 +168,15 @@ export default function AdminOrders() {
                                         </td>
                                         <td className="py-5 px-8">
                                             <div className="flex flex-col gap-1.5 items-start">
-                                                <select
-                                                    value={order.status.toUpperCase()}
-                                                    onChange={(e) => handleStatusUpdate(order.id, e.target.value)}
-                                                    className={`inline-flex items-center gap-2 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border cursor-pointer outline-none transition-all ${getStatusStyle(order.status)}`}
-                                                >
-                                                    <option value="PENDING">Pending</option>
-                                                    <option value="PROCESSING">Processing</option>
-                                                    <option value="SHIPPED">Shipped</option>
-                                                    <option value="DELIVERED">Delivered</option>
-                                                    <option value="CANCELLED">Cancelled</option>
-                                                    <option value="CANCELLATION_REQUESTED">Cancellation Requested</option>
-                                                </select>
+                                                <CustomSelect
+                                                    options={INLINE_STATUS_OPTIONS}
+                                                    value={order.status}
+                                                    onChange={(val) => handleStatusUpdate(order.id, val)}
+                                                    getOptionStyle={getStatusStyle}
+                                                    triggerClassName={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-widest border ${getStatusStyle(order.status)}`}
+                                                    listClassName="min-w-[220px]"
+                                                    className="w-auto"
+                                                />
                                                 <span className="text-[10px] font-black text-surface-400 uppercase tracking-widest ml-1">{order.orderItems?.length || 0} UNIT(S)</span>
                                             </div>
                                         </td>

@@ -5,11 +5,21 @@ import { motion } from "framer-motion";
 import { Mail, Phone, MapPin, Send, Hexagon, MessageSquare, Clock, Globe } from "lucide-react";
 import { useState } from "react";
 import { alerts } from "@/lib/alerts";
+import { CustomSelect } from "@/components/common/CustomSelect";
 
 const m = motion as any;
 
 export default function ContactPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [inquiryType, setInquiryType] = useState("Technical Product Specification");
+
+    const INQUIRY_OPTIONS = [
+        { value: "Technical Product Specification", label: "Technical Product Specification" },
+        { value: "Bulk/Trade Order Inquiry", label: "Bulk / Trade Order Inquiry" },
+        { value: "International Shipping Logistics", label: "International Shipping Logistics" },
+        { value: "Warranty & Returns Claim", label: "Warranty & Returns Claim" },
+        { value: "Partnership/Sponsorship", label: "Partnership / Sponsorship" },
+    ];
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -167,13 +177,13 @@ export default function ContactPage() {
 
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black text-surface-500 uppercase tracking-widest ml-1">Inquiry Type</label>
-                                    <select className="w-full bg-surface-50 border border-surface-200 rounded-xl px-6 py-4 focus:outline-none focus:border-brand-500 transition-all font-bold text-surface-900 appearance-none cursor-pointer">
-                                        <option>Technical Product Specification</option>
-                                        <option>Bulk/Trade Order Inquiry</option>
-                                        <option>International Shipping Logistics</option>
-                                        <option>Warranty & Returns Claim</option>
-                                        <option>Partnership/Sponsorship</option>
-                                    </select>
+                                    <CustomSelect
+                                        options={INQUIRY_OPTIONS}
+                                        value={inquiryType}
+                                        onChange={setInquiryType}
+                                        triggerClassName="w-full bg-surface-50 border border-surface-200 rounded-xl px-6 py-4 font-bold text-surface-900 hover:border-brand-500"
+                                        listClassName="top-full"
+                                    />
                                 </div>
 
                                 <div className="space-y-2">
