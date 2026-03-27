@@ -1,10 +1,10 @@
 /* eslint-disable */
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useSession, signOut } from "next-auth/react";
 import { alerts } from "@/lib/alerts";
-import { User, Package, MapPin, Clock, ArrowRight, LogOut, Loader2, ChevronRight } from "lucide-react";
+import { User, Package, MapPin, Clock, ArrowRight, LogOut, Loader2, ChevronRight, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { PriceDisplay } from "@/components/common/PriceDisplay";
@@ -17,6 +17,7 @@ export default function ProfilePage() {
     const user = session?.user as any;
     const [orders, setOrders] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [selectedOrder, setSelectedOrder] = useState<any>(null);
     const router = useRouter();
 
     useEffect(() => {
@@ -99,7 +100,8 @@ export default function ProfilePage() {
     if (!user) return null;
 
     return (
-        <div className="min-h-screen bg-surface-50 pt-40 pb-24">
+        <>
+            <div className="min-h-screen bg-surface-50 pt-40 pb-24">
             <div className="container mx-auto px-4">
                 <div className="max-w-7xl mx-auto">
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
@@ -271,7 +273,10 @@ export default function ProfilePage() {
                                                             REQUEST CANCELLATION
                                                         </button>
                                                     )}
-                                                    <button className="flex-1 sm:flex-none px-8 py-4 bg-surface-50 hover:bg-surface-950 hover:text-white rounded-xl text-surface-950 font-black text-[10px] uppercase tracking-[0.3em] transition-all flex items-center justify-center gap-3 border border-surface-200 group/btn active:scale-95">
+                                                    <button 
+                                                        onClick={() => setSelectedOrder(order)}
+                                                        className="flex-1 sm:flex-none px-8 py-4 bg-surface-50 hover:bg-surface-950 hover:text-white rounded-xl text-surface-950 font-black text-[10px] uppercase tracking-[0.3em] transition-all flex items-center justify-center gap-3 border border-surface-200 group/btn active:scale-95"
+                                                    >
                                                         MANIFEST DETAILS <ArrowRight size={16} className="group-hover/btn:translate-x-1 transition-transform" />
                                                     </button>
                                                 </div>
@@ -284,6 +289,74 @@ export default function ProfilePage() {
                     </div>
                 </div>
             </div>
-        </div>
+            </div>
+
+            <AnimatePresence>
+                {selectedOrder && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                        <m.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="absolute inset-0 bg-surface-950/40 backdrop-blur-md"
+                            onClick={() => setSelectedOrder(null)}
+                        />
+                        <m.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-surface-200 overflow-hidden flex flex-col max-h-[90vh]"
+                        >
+                            <div className="p-6 border-b border-surface-100 flex items-center justify-between bg-surface-50">
+                                <div>
+                                    <h2 className="text-xl font-black uppercase tracking-tighter text-surface-950">Manifest Details</h2>
+                                    <p className="text-xs font-bold text-surface-400 uppercase tracking-widest mt-1">Order #{selectedOrder.id.substring(0,8).toUpperCase()}</p>
+                                </div>
+                                <button onClick={() => setSelectedOrder(null)} className="p-2 text-surface-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors">
+                                    <X size={20} />
+                                </button>
+                            </div>
+                            <div className="p-6 overflow-y-auto flex-1 font-outfit">
+                                <div className="space-y-6">
+                                    <div>
+                                        <h3 className="text-sm font-black uppercase tracking-widest text-surface-400 mb-3">Shipping Logistics</h3>
+                                        <div className="p-4 bg-surface-50 rounded-xl border border-surface-100 font-bold text-surface-700 text-sm">
+                                            <p>{selectedOrder.shippingFirstName} {selectedOrder.shippingLastName}</p>
+                                            <p>{selectedOrder.shippingAddress}</p>
+                                            <p>{selectedOrder.shippingCity}, {selectedOrder.shippingZip}</p>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h3 className="text-sm font-black uppercase tracking-widest text-surface-400 mb-3">Order Items</h3>
+                                        <div className="space-y-3">
+                                            {selectedOrder.orderItems.map((item: any) => (
+                                                <div key={item.id} className="flex items-center gap-4 p-3 border border-surface-100 rounded-xl">
+                                                    <div className="w-12 h-12 bg-white rounded-lg border border-surface-200 overflow-hidden flex-shrink-0">
+                                                        <img src={item.product?.image} alt={item.product?.name} className="w-full h-full object-cover" />
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="font-black text-surface-950 truncate text-sm">{item.product?.name}</p>
+                                                        <p className="font-bold text-surface-400 text-[10px] uppercase tracking-widest">{item.quantity} UNIT(S)</p>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <PriceDisplay amount={Number(item.price)} className="font-black text-surface-950 text-sm" />
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="p-6 border-t border-surface-100 bg-surface-50">
+                                <div className="flex items-center justify-between">
+                                    <span className="font-black uppercase tracking-widest text-surface-400 text-xs">Total Manifest Value</span>
+                                    <PriceDisplay amount={Number(selectedOrder.total)} className="text-2xl font-black text-brand-600" />
+                                </div>
+                            </div>
+                        </m.div>
+                    </div>
+                )}
+            </AnimatePresence>
+        </>
     );
 }
