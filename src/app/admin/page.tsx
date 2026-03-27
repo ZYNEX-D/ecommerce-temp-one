@@ -76,7 +76,7 @@ export default function AdminDashboard() {
                     return (
                         <m.div
                             key={stat.label}
-                            initial={{ opacity: 0, y: 20 }}
+                            initial={{ opacity: 0, scale: 0.98 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.4, delay: idx * 0.1 }}
                             className="bg-white p-6 rounded-xl border border-surface-200 shadow-sm relative overflow-hidden group hover:border-brand-300 transition-all"

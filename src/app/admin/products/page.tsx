@@ -233,7 +233,7 @@ export default function AdminProducts() {
                                 {filteredProducts.map((product, i) => (
                                     <m.tr
                                         key={product.id}
-                                        initial={{ opacity: 0, y: 10 }}
+                                        initial={{ opacity: 0, scale: 0.98 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: i * 0.05 }}
                                         className="hover:bg-surface-50/50 transition-colors group"
@@ -304,7 +304,7 @@ export default function AdminProducts() {
                             className="absolute inset-0 bg-surface-950/40 backdrop-blur-md"
                         />
                         <m.div
-                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.9, y: 20 }}
                             className="relative w-full max-w-4xl bg-white rounded-[3rem] shadow-2xl overflow-hidden border border-surface-200"

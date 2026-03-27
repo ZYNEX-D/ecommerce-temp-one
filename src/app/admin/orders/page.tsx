@@ -144,7 +144,7 @@ export default function AdminOrders() {
                                 {filteredOrders.map((order, i) => (
                                     <motion.tr
                                         key={order.id}
-                                        initial={{ opacity: 0, y: 10 }}
+                                        initial={{ opacity: 0, scale: 0.98 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: i * 0.05 }}
                                         className="hover:bg-surface-50/50 transition-colors group"

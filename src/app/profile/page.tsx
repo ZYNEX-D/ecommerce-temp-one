@@ -184,7 +184,7 @@ export default function ProfilePage() {
 
                             {orders.length === 0 ? (
                                 <m.div
-                                    initial={{ opacity: 0, y: 20 }}
+                                    initial={{ opacity: 0, scale: 0.98 }}
                                     animate={{ opacity: 1, y: 0 }}
                                      className="bg-white rounded-2xl p-24 border border-surface-200 shadow-sm text-center flex flex-col items-center group relative overflow-hidden"
                                 >
@@ -203,7 +203,7 @@ export default function ProfilePage() {
                                     {orders.map((order, idx) => (
                                         <m.div
                                             key={order.id}
-                                            initial={{ opacity: 0, y: 30 }}
+                                            initial={{ opacity: 0, scale: 0.95 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ delay: idx * 0.1 }}
                                              className="bg-white rounded-2xl p-10 border border-surface-200 shadow-sm hover:shadow-2xl hover:border-brand-600/20 transition-all duration-500 group relative"
