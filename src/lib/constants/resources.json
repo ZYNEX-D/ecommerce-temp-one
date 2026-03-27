@@ -1,0 +1,43 @@
+{
+  "categories": {
+    "braking": [
+      "https://images.unsplash.com/photo-1598083842605-7af83fb18ebd",
+      "https://images.unsplash.com/photo-1621932970671-8798ef73286f",
+      "https://images.unsplash.com/photo-1486006920555-c77dcf181932",
+      "https://images.unsplash.com/photo-1600706432502-77a0e2e32771",
+      "https://images.unsplash.com/photo-1620932230784-067ef73286f3"
+    ],
+    "engine": [
+      "https://images.unsplash.com/photo-1610493864198-4eabd27df61a",
+      "https://images.unsplash.com/photo-1610493863481-9b7e779a543f",
+      "https://images.unsplash.com/photo-1615906650591-8216ac02409b",
+      "https://images.unsplash.com/photo-1597404294360-fedede44308e",
+      "https://images.unsplash.com/photo-1580273916550-e323be2ae537"
+    ],
+    "exterior": [
+      "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7",
+      "https://images.unsplash.com/photo-1503376780353-7e6692767b70",
+      "https://images.unsplash.com/photo-1552519507-da3b142c6e3d",
+      "https://images.unsplash.com/photo-1583121274602-3e2820c69888",
+      "https://images.unsplash.com/photo-1549399542-7e3f8b79c3)6"
+    ],
+    "performance": [
+      "https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a",
+      "https://images.unsplash.com/photo-1599940824399-b87987cb36a3",
+      "https://images.unsplash.com/photo-1494976388531-d1058494cdd8",
+      "https://images.unsplash.com/photo-1553440569-bcc63803a83d",
+      "https://images.unsplash.com/photo-1567808291548-fc3ee04dbac0"
+    ]
+  },
+  "metadata": {
+    "resolution": "800x600",
+    "provider": "Unsplash",
+    "license": "Unsplash License",
+    "usage": "Public Domain / Creative Commons",
+    "quality": "HD Curated",
+    "tags": ["auto-parts", "performance", "tuning", "braking", "engine", "exhaust", "suspension", "interiors", "exterior", "carbon-fiber"],
+    "curator": "Apex Intelligence",
+    "version": "1.0.0",
+    "revision": "2026-03-27"
+  }
+}
