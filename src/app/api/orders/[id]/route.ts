@@ -36,17 +36,27 @@ export async function PATCH(
             }, { status: 403 });
         }
 
-        // Logic for CANCELLING or REQUESTING CANCELLATION
-        if (status === 'CANCELLED') {
-            if (order.status !== 'PENDING') {
-                return NextResponse.json({ error: 'Only pending orders can be directly cancelled.' }, { status: 400 });
-            }
-        } else if (status === 'CANCELLATION_REQUESTED') {
-            if (['SHIPPED', 'DELIVERED', 'CANCELLED'].includes(order.status)) {
-                return NextResponse.json({ error: 'Cannot request cancellation for this order status.' }, { status: 400 });
-            }
+        const VALID_STATUSES = ['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'CANCELLATION_REQUESTED'];
+
+        if (!VALID_STATUSES.includes(status)) {
+            return NextResponse.json({ error: 'Invalid status value' }, { status: 400 });
+        }
+
+        if (userRole === 'ADMIN') {
+            // Admins can set any valid status directly
         } else {
-            return NextResponse.json({ error: 'Invalid status update' }, { status: 400 });
+            // Customers: restricted transitions only
+            if (status === 'CANCELLED') {
+                if (order.status !== 'PENDING') {
+                    return NextResponse.json({ error: 'Only pending orders can be directly cancelled.' }, { status: 400 });
+                }
+            } else if (status === 'CANCELLATION_REQUESTED') {
+                if (['SHIPPED', 'DELIVERED', 'CANCELLED'].includes(order.status)) {
+                    return NextResponse.json({ error: 'Cannot request cancellation for this order status.' }, { status: 400 });
+                }
+            } else {
+                return NextResponse.json({ error: 'You do not have permission to set this status.' }, { status: 403 });
+            }
         }
 
         const updatedOrder = await prisma.order.update({
