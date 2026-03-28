@@ -152,21 +152,6 @@ export default function ProfilePage() {
                                     <LogOut size={16} className="group-hover:translate-x-1 transition-transform" /> LOGOUT
                                 </button>
                             </m.div>
-
-                            <div className="bg-surface-950 rounded-2xl p-10 text-white relative overflow-hidden group shadow-2xl">
-                                <div className="absolute -top-10 -right-10 p-12 opacity-5 transform rotate-12 group-hover:scale-125 transition-transform duration-1000">
-                                    <Package size={240} />
-                                </div>
-                                <div className="relative z-10">
-                                    <div className="flex items-center gap-3 mb-6">
-                                        <div className="w-2 h-2 rounded-full bg-brand-500 animate-pulse" />
-                                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-500">Tier Status: Apex Silver</span>
-                                    </div>
-                                    <h3 className="text-2xl font-black uppercase tracking-tighter mb-4 font-outfit">PERFORMANCE LOYALTY</h3>
-                                    <p className="text-surface-400 text-sm font-medium mb-10 leading-relaxed italic">You are currently <span className="text-white font-bold">2 orders</span> away from unlocking <span className="text-brand-500 font-bold uppercase">Pro Tier</span> discounts on logistics.</p>
-                                    <button className="w-full py-4 bg-brand-600 hover:bg-brand-700 rounded-xl font-black text-[10px] uppercase tracking-[0.3em] transition-all shadow-lg shadow-brand-600/20 active:scale-95">VIEW TIOR BENEFITS</button>
-                                </div>
-                            </div>
                         </aside>
 
                         {/* Order History */}

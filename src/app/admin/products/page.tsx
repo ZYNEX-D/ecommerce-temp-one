@@ -320,157 +320,180 @@ export default function AdminProducts() {
 
                             <form onSubmit={handleSave} className="p-8 max-h-[70vh] overflow-y-auto custom-scrollbar">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                    {/* Core Info */}
-                                    <div className="space-y-6">
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-surface-500 uppercase tracking-widest pl-1">Part Name</label>
-                                            <div className="relative">
-                                                <Tag className="absolute left-4 top-1/2 -translate-y-1/2 text-surface-300" size={18} />
-                                                <input
-                                                    required
-                                                    value={formData.name}
-                                                    onChange={e => setFormData({ ...formData, name: e.target.value })}
-                                                    className="w-full bg-surface-50 border border-surface-200 rounded-2xl py-3 pl-12 pr-6 font-bold text-surface-900 focus:border-brand-500 outline-none"
-                                                    placeholder="e.g. Performance Brake Pads"
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="space-y-2">
-                                                <label className="text-[10px] font-black text-surface-500 uppercase tracking-widest pl-1">Base Price</label>
-                                                <div className="relative">
-                                                    <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 text-surface-300" size={18} />
-                                                    <input
-                                                        type="number"
-                                                        step="0.01"
-                                                        value={formData.price}
-                                                        onChange={e => setFormData({ ...formData, price: parseFloat(e.target.value) })}
-                                                        className="w-full bg-surface-50 border border-surface-200 rounded-2xl py-3 pl-10 pr-4 font-bold text-surface-900 focus:border-brand-500 outline-none"
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div className="space-y-2">
-                                                <label className="text-[10px] font-black text-surface-500 uppercase tracking-widest pl-1">Stock Level</label>
-                                                <div className="relative">
-                                                    <Box className="absolute left-4 top-1/2 -translate-y-1/2 text-surface-300" size={18} />
-                                                    <input
-                                                        type="number"
-                                                        value={formData.stock}
-                                                        onChange={e => setFormData({ ...formData, stock: parseInt(e.target.value) })}
-                                                        className="w-full bg-surface-50 border border-surface-200 rounded-2xl py-3 pl-10 pr-4 font-bold text-surface-900 focus:border-brand-500 outline-none"
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-surface-500 uppercase tracking-widest pl-1">Category</label>
-                                            <CustomSelect
-                                                options={categoryFormOptions}
-                                                value={formData.categoryId}
-                                                onChange={(val) => setFormData({ ...formData, categoryId: val })}
-                                                triggerClassName="w-full bg-surface-50 border border-surface-200 rounded-2xl py-3 px-4 font-bold text-surface-900 hover:border-brand-500"
-                                                listClassName="top-full"
-                                            />
-                                        </div>
-
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-surface-500 uppercase tracking-widest pl-1">Image URL</label>
-                                            <div className="relative">
-                                                <ImageIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-surface-300" size={18} />
-                                                <input
-                                                    required
-                                                    value={formData.image}
-                                                    onChange={e => setFormData({ ...formData, image: e.target.value })}
-                                                    className="w-full bg-surface-50 border border-surface-200 rounded-2xl py-3 pl-12 pr-6 font-bold text-surface-900 focus:border-brand-500 outline-none"
-                                                    placeholder="https://..."
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* SEO & Description */}
-                                    <div className="space-y-6">
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-surface-500 uppercase tracking-widest pl-1">SEO Title</label>
-                                            <div className="relative">
-                                                <Globe className="absolute left-4 top-1/2 -translate-y-1/2 text-surface-300" size={18} />
-                                                <input
-                                                    value={formData.metaTitle}
-                                                    onChange={e => setFormData({ ...formData, metaTitle: e.target.value })}
-                                                    className="w-full bg-surface-50 border border-surface-200 rounded-2xl py-3 pl-12 pr-6 font-bold text-surface-950 focus:border-brand-500 outline-none"
-                                                    placeholder="SEO optimized title..."
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-surface-500 uppercase tracking-widest pl-1">SEO Description</label>
-                                            <textarea
-                                                rows={2}
-                                                value={formData.metaDescription}
-                                                onChange={e => setFormData({ ...formData, metaDescription: e.target.value })}
-                                                className="w-full bg-surface-50 border border-surface-200 rounded-2xl py-3 px-4 font-bold text-surface-950 focus:border-brand-500 outline-none resize-none"
-                                                placeholder="Brief description for search engines..."
-                                            />
-                                        </div>
-
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-surface-500 uppercase tracking-widest pl-1">Full Description</label>
-                                            <textarea
-                                                required
-                                                rows={4}
-                                                value={formData.description}
-                                                onChange={e => setFormData({ ...formData, description: e.target.value })}
-                                                className="w-full bg-surface-50 border border-surface-200 rounded-2xl py-3 px-4 font-bold text-surface-950 focus:border-brand-500 outline-none resize-none"
-                                                placeholder="Technical details and fitment info..."
-                                            />
-                                        </div>
-
-                                        <div className="pt-6 border-t border-surface-100">
-                                            <h3 className="text-xs font-black text-brand-600 uppercase tracking-widest mb-4">Service & Logistics</h3>
-                                            <div className="grid grid-cols-1 gap-4">
+                                    {/* Column 1: Core Logistics */}
+                                    <div className="space-y-8">
+                                        <div className="space-y-6">
+                                            <h3 className="text-xs font-black text-brand-600 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-brand-600" /> Core Identity
+                                            </h3>
+                                            <div className="space-y-4">
                                                 <div className="space-y-2">
-                                                    <label className="text-[10px] font-black text-surface-500 uppercase tracking-widest pl-1">Warranty Label</label>
+                                                    <label className="text-[10px] font-black text-surface-500 uppercase tracking-widest pl-1">Part Name</label>
+                                                    <div className="relative">
+                                                        <Tag className="absolute left-4 top-1/2 -translate-y-1/2 text-surface-300" size={18} />
+                                                        <input
+                                                            required
+                                                            value={formData.name}
+                                                            onChange={e => setFormData({ ...formData, name: e.target.value })}
+                                                            className="w-full bg-surface-50 border border-surface-200 rounded-2xl py-3 pl-12 pr-6 font-bold text-surface-900 focus:border-brand-500 outline-none transition-all"
+                                                            placeholder="e.g. Performance Brake Pads"
+                                                        />
+                                                    </div>
+                                                </div>
+
+                                                <div className="grid grid-cols-2 gap-4">
+                                                    <div className="space-y-2">
+                                                        <label className="text-[10px] font-black text-surface-500 uppercase tracking-widest pl-1">Base Price</label>
+                                                        <div className="relative">
+                                                            <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 text-surface-300" size={18} />
+                                                            <input
+                                                                type="number"
+                                                                step="0.01"
+                                                                value={formData.price}
+                                                                onChange={e => setFormData({ ...formData, price: parseFloat(e.target.value) })}
+                                                                className="w-full bg-surface-50 border border-surface-200 rounded-2xl py-3 pl-10 pr-4 font-bold text-surface-900 focus:border-brand-500 outline-none"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <label className="text-[10px] font-black text-surface-500 uppercase tracking-widest pl-1">Stock Level</label>
+                                                        <div className="relative">
+                                                            <Box className="absolute left-4 top-1/2 -translate-y-1/2 text-surface-300" size={18} />
+                                                            <input
+                                                                type="number"
+                                                                value={formData.stock}
+                                                                onChange={e => setFormData({ ...formData, stock: parseInt(e.target.value) })}
+                                                                className="w-full bg-surface-50 border border-surface-200 rounded-2xl py-3 pl-10 pr-4 font-bold text-surface-900 focus:border-brand-500 outline-none"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] font-black text-surface-500 uppercase tracking-widest pl-1">Global Category</label>
+                                                    <CustomSelect
+                                                        options={categoryFormOptions}
+                                                        value={formData.categoryId}
+                                                        onChange={(val) => setFormData({ ...formData, categoryId: val })}
+                                                        triggerClassName="w-full bg-surface-50 border border-surface-200 rounded-2xl py-3 px-4 font-bold text-surface-900 hover:border-brand-500"
+                                                        listClassName="top-full"
+                                                    />
+                                                </div>
+
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] font-black text-surface-500 uppercase tracking-widest pl-1">Image Reference URL</label>
+                                                    <div className="relative">
+                                                        <ImageIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-surface-300" size={18} />
+                                                        <input
+                                                            required
+                                                            value={formData.image}
+                                                            onChange={e => setFormData({ ...formData, image: e.target.value })}
+                                                            className="w-full bg-surface-50 border border-surface-200 rounded-2xl py-3 pl-12 pr-6 font-bold text-surface-900 focus:border-brand-500 outline-none"
+                                                            placeholder="https://images.unsplash..."
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="pt-8 border-t border-surface-100">
+                                            <h3 className="text-xs font-black text-brand-600 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-brand-600" /> Service & Fulfillment
+                                            </h3>
+                                            <div className="grid grid-cols-1 gap-5">
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] font-black text-surface-500 uppercase tracking-widest pl-1">Warranty Coverage</label>
                                                     <input 
                                                         value={formData.warranty}
                                                         onChange={e => setFormData({ ...formData, warranty: e.target.value })}
-                                                        className="w-full bg-surface-50 border border-surface-200 rounded-xl py-3 px-4 font-bold text-surface-950 focus:border-brand-500 outline-none"
+                                                        className="w-full bg-surface-50 border border-surface-200 rounded-2xl py-3 px-5 font-bold text-surface-950 focus:border-brand-500 outline-none shadow-sm"
                                                         placeholder="e.g. 2-YEAR FULL WARRANTY"
                                                     />
                                                 </div>
                                                 <div className="space-y-2">
-                                                    <label className="text-[10px] font-black text-surface-500 uppercase tracking-widest pl-1">Logistics Label</label>
+                                                    <label className="text-[10px] font-black text-surface-500 uppercase tracking-widest pl-1">Delivery Protocol</label>
                                                     <input 
                                                         value={formData.delivery}
                                                         onChange={e => setFormData({ ...formData, delivery: e.target.value })}
-                                                        className="w-full bg-surface-50 border border-surface-200 rounded-xl py-3 px-4 font-bold text-surface-950 focus:border-brand-500 outline-none"
+                                                        className="w-full bg-surface-50 border border-surface-200 rounded-2xl py-3 px-5 font-bold text-surface-950 focus:border-brand-500 outline-none shadow-sm"
                                                         placeholder="e.g. EXPRESS LOGISTICS"
                                                     />
                                                 </div>
                                                 <div className="space-y-2">
-                                                    <label className="text-[10px] font-black text-surface-500 uppercase tracking-widest pl-1">Returns Label</label>
+                                                    <label className="text-[10px] font-black text-surface-500 uppercase tracking-widest pl-1">Return Policy</label>
                                                     <input 
                                                         value={formData.returns}
                                                         onChange={e => setFormData({ ...formData, returns: e.target.value })}
-                                                        className="w-full bg-surface-50 border border-surface-200 rounded-xl py-3 px-4 font-bold text-surface-950 focus:border-brand-500 outline-none"
+                                                        className="w-full bg-surface-50 border border-surface-200 rounded-2xl py-3 px-5 font-bold text-surface-950 focus:border-brand-500 outline-none shadow-sm"
                                                         placeholder="e.g. 30-DAY EASY RETURNS"
                                                     />
                                                 </div>
                                             </div>
                                         </div>
+                                    </div>
 
-                                        <div className="pt-6 border-t border-surface-100">
-                                            <h3 className="text-xs font-black text-brand-600 uppercase tracking-widest mb-4">Compliance</h3>
+                                    {/* Column 2: SEO & Technicals */}
+                                    <div className="space-y-8">
+                                        <div className="space-y-6">
+                                            <h3 className="text-xs font-black text-indigo-600 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-indigo-600" /> Google Search Optimization
+                                            </h3>
+                                            <div className="p-6 bg-indigo-50/30 rounded-[2rem] border border-indigo-100 space-y-5">
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] font-black text-indigo-900/40 uppercase tracking-widest pl-1">Search Result Title</label>
+                                                    <div className="relative">
+                                                        <Globe className="absolute left-4 top-1/2 -translate-y-1/2 text-indigo-400" size={18} />
+                                                        <input
+                                                            value={formData.metaTitle}
+                                                            onChange={e => setFormData({ ...formData, metaTitle: e.target.value })}
+                                                            className="w-full bg-white border border-indigo-100 rounded-xl py-3 pl-12 pr-6 font-bold text-indigo-950 focus:border-brand-500 outline-none shadow-sm"
+                                                            placeholder="Optimized for Google..."
+                                                        />
+                                                    </div>
+                                                </div>
+
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] font-black text-indigo-900/40 uppercase tracking-widest pl-1">Meta Description</label>
+                                                    <textarea
+                                                        rows={3}
+                                                        value={formData.metaDescription}
+                                                        onChange={e => setFormData({ ...formData, metaDescription: e.target.value })}
+                                                        className="w-full bg-white border border-indigo-100 rounded-xl py-3 px-5 font-bold text-indigo-950 focus:border-brand-500 outline-none resize-none shadow-sm"
+                                                        placeholder="Snippets for search results..."
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-4">
+                                            <h3 className="text-xs font-black text-surface-400 uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-surface-400" /> Engineering Breakdown
+                                            </h3>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-surface-500 uppercase tracking-widest pl-1">Full Description</label>
+                                                <textarea
+                                                    required
+                                                    rows={6}
+                                                    value={formData.description}
+                                                    onChange={e => setFormData({ ...formData, description: e.target.value })}
+                                                    className="w-full bg-surface-50 border border-surface-200 rounded-2xl py-4 px-5 font-bold text-surface-950 focus:border-brand-500 outline-none resize-none transition-all"
+                                                    placeholder="Technical specifications and fitment data..."
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="pt-8 border-t border-surface-100">
+                                            <h3 className="text-xs font-black text-red-600 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-red-600" /> Legal & Compliance
+                                            </h3>
                                             <div className="space-y-2">
                                                 <label className="text-[10px] font-black text-surface-500 uppercase tracking-widest pl-1">Product-Specific Terms</label>
                                                 <textarea 
                                                     rows={3}
                                                     value={formData.terms}
                                                     onChange={e => setFormData({ ...formData, terms: e.target.value })}
-                                                    className="w-full bg-surface-50 border border-surface-200 rounded-xl py-3 px-4 font-bold text-surface-950 focus:border-brand-500 outline-none resize-none"
-                                                    placeholder="Special terms and conditions for this part..."
+                                                    className="w-full bg-surface-50 border border-surface-200 rounded-2xl py-4 px-5 font-bold text-surface-950 focus:border-brand-500 outline-none resize-none shadow-sm"
+                                                    placeholder="Liability waivers or special handling clauses..."
                                                 />
                                             </div>
                                         </div>
