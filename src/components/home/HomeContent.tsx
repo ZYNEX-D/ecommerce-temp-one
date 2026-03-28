@@ -13,6 +13,7 @@ const products = [
     {
         id: "1",
         name: "Premium Ceramic Brake Pads",
+        slug: "premium-ceramic-brake-pads",
         price: 89.99,
         description: "High-performance ceramic compound engineered for stopping power and low dust.",
         image: "https://images.unsplash.com/photo-1598083842605-7af83fb18ebd?auto=format&fit=crop&q=80&w=800",
@@ -21,6 +22,7 @@ const products = [
     {
         id: "2",
         name: "Synthetic Motor Oil 5W-30",
+        slug: "synthetic-motor-oil-5w-30",
         price: 34.99,
         description: "Full synthetic motor oil designed for optimal engine protection and performance.",
         image: "https://images.unsplash.com/photo-1610493864198-4eabd27df61a?auto=format&fit=crop&q=80&w=800",
@@ -29,6 +31,7 @@ const products = [
     {
         id: "3",
         name: "Performance Air Filter",
+        slug: "performance-air-filter",
         price: 45.99,
         description: "High-flow cotton gauze air filter for increased horsepower and acceleration.",
         image: "https://images.unsplash.com/photo-1610493863481-9b7e779a543f?auto=format&fit=crop&q=80&w=800",
@@ -165,7 +168,7 @@ export function FeaturedProducts() {
 
                                 <div className="flex items-center justify-between border-t border-surface-100 pt-8">
                                     <PriceDisplay amount={product.price} className="text-4xl font-black text-surface-950" />
-                                    <Link href={`/products/${product.id}`} className="w-14 h-14 bg-brand-600 hover:bg-brand-700 text-white rounded-lg flex items-center justify-center transition-all duration-300 shadow-lg shadow-brand-600/20 active:scale-90">
+                                    <Link href={`/products/${product.slug}`} className="w-14 h-14 bg-brand-600 hover:bg-brand-700 text-white rounded-lg flex items-center justify-center transition-all duration-300 shadow-lg shadow-brand-600/20 active:scale-90">
                                         <ShoppingCart size={24} />
                                     </Link>
                                 </div>

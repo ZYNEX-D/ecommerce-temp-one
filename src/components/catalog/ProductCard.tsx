@@ -45,7 +45,7 @@ export function ProductCard({ product, index }: ProductCardProps) {
 
             {/* Image Container */}
             <Link 
-                href={`/products/${product.id}`} 
+                href={`/products/${product.slug}`} 
                 className="relative h-96 overflow-hidden bg-surface-50 flex items-center justify-center p-12"
             >
                 <m.div
@@ -102,7 +102,7 @@ export function ProductCard({ product, index }: ProductCardProps) {
                     </div>
 
                     <Link 
-                        href={`/products/${product.id}`}
+                        href={`/products/${product.slug}`}
                         className="flex items-center justify-center gap-3 w-full py-4 border-2 border-surface-100 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] text-surface-400 hover:text-brand-600 hover:border-brand-600/20 hover:bg-surface-50 transition-all duration-300"
                     >
                         Detailed Specs
